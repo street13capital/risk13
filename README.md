@@ -1,4 +1,6 @@
-Minimal demo script to initialise and get account info. The windows_terminal_path step is needed to make it work vs default.
+Minimal demo script to initialise and get account info and end script.
+
+The `windows_terminal_path` step is needed to make it work vs default.
 
 ```py
 import mt5_mac as mt5
