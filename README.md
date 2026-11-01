@@ -10,6 +10,8 @@ mt5.initialize(path=windows_terminal_path)
 mt5.login(1234567,"password","server")
 
 print(mt5.account_info())
+# do whatever work needed to be done here
+# API at https://pypi.org/project/mt5-mac/
 
 mt5.shutdown()
 ```
