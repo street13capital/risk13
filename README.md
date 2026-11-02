@@ -1,3 +1,5 @@
+This is an intraday risk engine to assist with risk management for my intraday manual discretionary trading. The Python package mt5-mac is used to communicate with MetaTrader 5 running on my MacBook through Wine wrapper. I do not want to use a VPS or some other API service to do it. I just want to run it locally. So I use this mt5-mac package. Some minor modifications have to be made to work on my laptop and the mt5_mac folder are modified files. You can find out more about mt5-mac package here pypi.org/project/mt5-mac/
+
 Minimal demo script to initialise, get account info, and end execution.
 
 The `windows_terminal_path` step is needed to make it work vs default.
