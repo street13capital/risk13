@@ -1,4 +1,6 @@
-This repo is an intraday risk engine to assist with risk management for my discretionary manual intraday trading. The Python package mt5-mac is used to communicate with MetaTrader 5 running on my MacBook through Wine wrapper. I do not want to use a VPS or some API service to do it. I just want to run it locally. So I use this mt5-mac package. Some minor modifications have to be made to work on my laptop and the mt5_mac folder are the modified files. You can find out more about mt5-mac package here [pypi.org/project/mt5-mac/](https://pypi.org/project/mt5-mac/).
+This repo is an intraday risk engine to assist with risk management for my discretionary manual intraday trading. The Python package mt5-mac is used to communicate with MetaTrader 5 running on my MacBook through Wine wrapper. I do not want to use a VPS or some API service to do it. I just want to run it locally.
+
+So I use this mt5-mac package. Some minor modifications have to be made to work on my laptop and the mt5_mac folder are the modified files. You can find out more about mt5-mac package here [pypi.org/project/mt5-mac](https://pypi.org/project/mt5-mac).
 
 Minimal demo script to initialise, get account info, and end execution.
 
