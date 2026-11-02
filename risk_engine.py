@@ -83,13 +83,6 @@ else:
 try:
     while True:
         account = mt5.account_info()
-        # 4) update daily peak balance and store it
-        if account.balance > daily_peak_balance:
-            daily_peak_balance = account.balance
-            with open(risk_data_file, "w") as f:
-                f.write(f"{current_date},{daily_peak_balance}")
-
-
         # print only periodically to reduce cpu usage
         current_time = time.time()
         if (current_time - last_printout_time) >= 30:
