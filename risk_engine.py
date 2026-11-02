@@ -57,11 +57,11 @@ try:
         account = mt5.account_info()
         os.system('cls' if os.name == 'nt' else 'clear')
         # print('[', daily_peak_balance, account.balance, account.equity, account.profit, ']')
-        print('[INTRADAY RISK ENGINE]')
-        print('Peak:   ', daily_peak_balance)
+        print('[Intraday Risk Engine]')
+        print('Maximum:', daily_peak_balance)
         print('Current:', account.balance)
         print('Equity: ', account.equity)
-        print('P&L:    ', account.profit)
+        print('P&L:    ', account.profit, '\n')
 
         # 4) update daily peak balance and store it
         if account.balance > daily_peak_balance:
