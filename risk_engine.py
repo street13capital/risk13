@@ -14,9 +14,34 @@ risk_data_file = 'risk_engine.txt'
 last_reset_date = None
 daily_peak_balance = None
 weekly_peak_balance = None
+last_printout_time = 0
 
 def flatten_all_positions():
-    pass
+    positions = mt5.positions_get()
+    if not positions:
+        return
+
+    for pos in positions:
+        if pos.type == mt5.POSITION_TYPE_BUY:
+            trade_type = mt5.ORDER_TYPE_SELL
+            price = mt5.symbol_info_tick(pos.symbol).bid
+        else:
+            trade_type = mt5.ORDER_TYPE_BUY
+            price = mt5.symbol_info_tick(pos.symbol).ask
+
+        close_payload = {
+            "action": mt5.TRADE_ACTION_DEAL,
+            "symbol": pos.symbol,
+            "volume": pos.volume,
+            "type": trade_type,
+            "position": pos.ticket,
+            "price": price,
+            "deviation": 20,
+            "magic": 999999,
+            "type_time": mt5.ORDER_TIME_GTC,
+            "type_filling": mt5.ORDER_FILLING_IOC,
+        }
+        result = mt5.order_send(close_payload)
 
 # 1) connect to local MT5 instance running on macOS,
 # using python keyring to securely store credentials
@@ -27,6 +52,8 @@ mt5_login = int(keyring.get_password('MT5_Account', 'login'))
 mt5_password = keyring.get_password('MT5_Account', 'password')
 mt5_server = keyring.get_password('MT5_Account', 'server')
 mt5.login(mt5_login, mt5_password, mt5_server)
+# initial clear screen before printing figures
+os.system('cls' if os.name == 'nt' else 'clear')
 
 # 2) set peak balance from data file or reset balance
 # reset if UTC time starts a new day, ie Singapore time 8am
@@ -55,13 +82,13 @@ else:
 try:
     while True:
         account = mt5.account_info()
-        os.system('cls' if os.name == 'nt' else 'clear')
-        # print('[', daily_peak_balance, account.balance, account.equity, account.profit, ']')
-        print('[Intraday Risk Engine]')
-        print('Maximum:', daily_peak_balance)
-        print('Current:', account.balance)
-        print('Equity: ', account.equity)
-        print('P&L:    ', account.profit, '\n')
+        # print only periodically to reduce cpu usage
+        current_time = time.time()
+        if (current_time - last_printout_time) >= 30:
+            print('\033[H\033[J[Intraday Risk Engine]\nMaximum:', daily_peak_balance,
+                '\nCurrent:', account.balance, '\nEquity: ', account.equity,
+                '\nP&L:    ', account.profit, '\n')
+            last_printout_time = current_time
 
         # 4) update daily peak balance and store it
         if account.balance > daily_peak_balance:
@@ -72,14 +99,14 @@ try:
         # 5) check if trades exceeded trades risk limit
         # then flatten all open positions to force close
         if (account.profit < (-trade_risk_percentage * daily_peak_balance)):
-            print('[TRADE RISK EXCEEDED]')
             flatten_all_positions()
+            print('[TRADE RISK EXCEEDED]')
 
         # 6) check if balance exceeded daily risk limit
         # then flatten all open positions if there is any
         if (account.equity < (1 - daily_risk_percentage) * daily_peak_balance):
-            print('[DAILY RISK EXCEEDED]')
             flatten_all_positions()
+            print('[DAILY RISK EXCEEDED]')
 
         # delay to avoid useless computation cycles
         time.sleep(polling_period_in_sec)
@@ -88,5 +115,6 @@ except KeyboardInterrupt:
     # graceful exit for Control+C to kill risk engine process
     pass
 
-# 7) terminate engine process by sending shutdown to MT5
-mt5.shutdown()
+finally:
+    # 7) terminate engine process by sending shutdown to MT5
+    mt5.shutdown()
