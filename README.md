@@ -4,7 +4,7 @@ So I use this mt5-mac package. Some minor modifications have to be made to work 
 
 For the mt5-mac package, below is a minimal demo script to initialise, get account info, and end execution. The `windows_terminal_path` step is needed to make it work vs leaving it as default.
 
-For the risk engine, you can see source code of [risk_engine.py](https://github.com/street13capital/mt5_mac/blob/main/risk_engine.py) and the parameters. I've implemented trailing daily risk and trade risk limit. Next on my plate is weekly risk limit, and potentially a narrowing daily risk limit.
+For the risk engine, you can see source code of [risk_engine.py](https://github.com/street13capital/mt5_mac/blob/main/risk_engine.py) and the parameters. I've implemented trailing daily risk, trailing weekly risk, and open trades risk limit. Next on my plate is potentially a narrowing daily risk limit.
 
 ```py
 import mt5_mac as mt5
