@@ -137,6 +137,10 @@ try:
         # print only periodically to reduce cpu usage
         current_time = time.time()
         if (current_time - last_printout_time) >= 30:
+            # print risk notice once per print to screen cycle
+            risk_exceeded_printed = False
+
+            # use special code to clear screen not slower OS I/O
             print('\033[H\033[J[Intraday Risk Engine]\nMaximum:', daily_peak_balance,
                 '\nCurrent:', account.balance, '\nEquity: ', account.equity,
                 '\nP&L:    ', account.profit, '\n')
@@ -164,10 +168,14 @@ try:
         if weekly_risk_floor > daily_risk_floor:
             if account.equity < weekly_risk_floor:
                 flatten_all_positions()
-                print('[WEEKLY RISK EXCEEDED]')
+                if not risk_exceeded_printed:
+                    risk_exceeded_printed = True
+                    print('[WEEKLY RISK EXCEEDED]')
         elif account.equity < daily_risk_floor:
             flatten_all_positions()
-            print('[DAILY RISK EXCEEDED]')
+            if not risk_exceeded_printed:
+                risk_exceeded_printed = True
+                print('[DAILY RISK EXCEEDED]')
 
         # delay to avoid useless computation cycles
         time.sleep(polling_period_in_sec)
