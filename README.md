@@ -4,7 +4,7 @@ So I use this mt5-mac package. Some minor modifications have to be made to work 
 
 For the risk engine, you can see source code of [risk_engine.py](https://github.com/street13capital/mt5_mac/blob/main/risk_engine.py) and the parameters. I've implemented trailing daily risk, trailing weekly risk, and automated stop loss. There are other implementable features like narrowing daily risk limit base on time left to the end of trading session, or profitability for the day, automated trailing stop, automated exit at multiple of risk, etc. But at least for now I think they are better left done manually.
 
-Sample output of the risk engine running:
+Sample output of the risk engine:
 
 ```
 [Intraday Risk Engine]
