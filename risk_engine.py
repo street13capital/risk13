@@ -43,6 +43,9 @@ def flatten_all_positions():
         result = mt5.order_send(close_payload)
 
 def apply_stop_loss():
+    # this function request just do not work after deep debugging
+    # bug or limitation end-to-end, use other workaround for SL logic
+    # retain code in this section for possible future use in other ways
     global trade_risk_percentage, daily_peak_balance
 
     positions = mt5.positions_get()
@@ -80,8 +83,6 @@ def apply_stop_loss():
             else:
                 continue
 
-            # note that MT5 will throw error if stop loss is too far away
-            # for example test lot size of 0.01 for EURUSD will error out
             stoploss_payload = {
                 'action': mt5.TRADE_ACTION_SLTP,
                 'position': ticket,
@@ -89,10 +90,8 @@ def apply_stop_loss():
                 'sl': round(stop_loss, symbol_info.digits),
                 'tp': pos.tp
             }
-            # print(ticket, symbol, round(stop_loss, symbol_info.digits), pos.tp)
             result = mt5.order_send(stoploss_payload)
-            # print(result)
-            
+  
 # 1) connect to local MT5 instance running on macOS,
 # using python keyring to securely store credentials
 # terminal path override is needed to work vs the default using \\
@@ -168,10 +167,6 @@ try:
         elif account.equity < daily_risk_floor:
             flatten_all_positions()
             print('[DAILY RISK EXCEEDED]')
-
-        # 7) automatically calculate and apply stop loss
-        # test another time, MT5 keep rejecting order
-        # apply_stop_loss()
 
         # delay to avoid useless computation cycles
         time.sleep(polling_period_in_sec)
