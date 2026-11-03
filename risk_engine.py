@@ -86,7 +86,8 @@ def apply_stop_loss():
                 'action': mt5.TRADE_ACTION_SLTP,
                 'position': ticket,
                 'symbol': symbol,
-                'sl': round(stop_loss, symbol_info.digits)
+                'sl': round(stop_loss, symbol_info.digits),
+                'tp': pos.tp
             }
             # print(ticket, symbol, round(stop_loss, symbol_info.digits), pos.tp)
             result = mt5.order_send(stoploss_payload)
@@ -169,7 +170,8 @@ try:
             print('[DAILY RISK EXCEEDED]')
 
         # 7) automatically calculate and apply stop loss
-        # apply_stop_loss() # MT5 keep rejecting order
+        # test another time, MT5 keep rejecting order
+        # apply_stop_loss()
 
         # delay to avoid useless computation cycles
         time.sleep(polling_period_in_sec)
