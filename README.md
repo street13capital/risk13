@@ -2,7 +2,7 @@ This repo is an intraday risk engine to assist with risk management for my discr
 
 So I use this mt5-mac package. Some minor modifications have to be made to work on my laptop and the mt5_mac folder are the modified files. You can find out more about mt5-mac package here [pypi.org/project/mt5-mac](https://pypi.org/project/mt5-mac). The package links to dead URLs on GitHub and the author's email is invalid too, not sure why.
 
-For the risk engine, you can see source code of [risk_engine.py](https://github.com/street13capital/mt5_mac/blob/main/risk_engine.py) and the parameters. I've implemented trailing daily risk, trailing weekly risk, and automated stop loss. Next TBC is a narrowing daily risk limit. Sample output:
+For the risk engine, you can see source code of [risk_engine.py](https://github.com/street13capital/mt5_mac/blob/main/risk_engine.py) and the parameters. I've implemented trailing daily risk, trailing weekly risk, and automated stop loss. Sample output of the risk engine when it is running:
 
 ```
 [Intraday Risk Engine]
