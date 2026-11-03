@@ -152,6 +152,7 @@ try:
 
         # 5) check if trades exceeded trades risk limit
         # then flatten all open positions to force close
+        # this effectively acts as stop loss at trade limit
         if (account.profit < (-trade_risk_percentage * daily_peak_balance)):
             flatten_all_positions()
             print('[TRADE RISK EXCEEDED]')
