@@ -17,7 +17,7 @@ last_printout_time = 0
 
 def flatten_all_positions():
     positions = mt5.positions_get()
-    if not positions:
+    if positions is None or len(positions) == 0:
         return
 
     for pos in positions:
@@ -29,19 +29,68 @@ def flatten_all_positions():
             price = mt5.symbol_info_tick(pos.symbol).ask
 
         close_payload = {
-            "action": mt5.TRADE_ACTION_DEAL,
-            "symbol": pos.symbol,
-            "volume": pos.volume,
-            "type": trade_type,
-            "position": pos.ticket,
-            "price": price,
-            "deviation": 30,
-            "magic": 999999,
-            "type_time": mt5.ORDER_TIME_GTC,
-            "type_filling": mt5.ORDER_FILLING_IOC,
+            'action': mt5.TRADE_ACTION_DEAL,
+            'symbol': pos.symbol,
+            'volume': pos.volume,
+            'type': trade_type,
+            'position': pos.ticket,
+            'price': price,
+            'deviation': 30,
+            'magic': 999999,
+            'type_time': mt5.ORDER_TIME_GTC,
+            'type_filling': mt5.ORDER_FILLING_IOC,
         }
         result = mt5.order_send(close_payload)
 
+def apply_stop_loss():
+    global trade_risk_percentage, daily_peak_balance
+
+    positions = mt5.positions_get()
+    if positions is None or len(positions) == 0:
+        return
+
+    for pos in positions:
+        if pos.sl == 0.0:
+            ticket = pos.ticket
+            symbol = pos.symbol
+            position_type = pos.type
+            open_price = pos.price_open
+
+            # calculate cost per point for symbol
+            symbol_info = mt5.symbol_info(symbol)
+            if symbol_info is None:
+                continue
+            symbol_point = symbol_info.point
+            contract_size = symbol_info.contract_size
+            if contract_size == None or contract_size == 0.0:
+                contract_size = symbol_info.margin_initial
+                if contract_size == None or contract_size == 0.0:
+                    contract_size = 100000.0
+            cost_per_point = pos.volume * contract_size * symbol_point
+
+            # distribute stop loss amount evenly to existing positions
+            stop_loss_amount = trade_risk_percentage * daily_peak_balance / len(positions)
+
+            # calculate stop loss points and offset from open price
+            stop_loss_points = stop_loss_amount / cost_per_point * symbol_point
+            if position_type == mt5.ORDER_TYPE_BUY:
+                stop_loss = open_price - stop_loss_points
+            elif position_type == mt5.ORDER_TYPE_SELL:
+                stop_loss = open_price + stop_loss_points
+            else:
+                continue
+
+            # note that MT5 will throw error if stop loss is too far away
+            # for example test lot size of 0.01 for EURUSD will error out
+            stoploss_payload = {
+                'action': mt5.TRADE_ACTION_SLTP,
+                'position': ticket,
+                'symbol': symbol,
+                'sl': round(stop_loss, symbol_info.digits),
+                'tp': pos.tp,
+            }
+            result = mt5.order_send(stoploss_payload)
+            
 # 1) connect to local MT5 instance running on macOS,
 # using python keyring to securely store credentials
 # terminal path override is needed to work vs the default using \\
@@ -57,10 +106,10 @@ os.system('cls' if os.name == 'nt' else 'clear')
 # 2) set peak balance from data file or reset balance
 # reset if UTC time starts a new day, ie Singapore time 8am
 # that is a good reset time at the start of Asia time zone
-current_date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+current_date = datetime.now(timezone.utc).strftime('%Y-%m-%d')
 if os.path.exists(risk_data_file):
-    with open(risk_data_file, "r") as f:
-        last_saved_date, last_saved_balance, saved_weekly_balance = f.read().strip().split(",")
+    with open(risk_data_file, 'r') as f:
+        last_saved_date, last_saved_balance, saved_weekly_balance = f.read().strip().split(',')
         weekly_peak_balance = float(saved_weekly_balance)
         if last_saved_date == current_date:
             daily_peak_balance = float(last_saved_balance)
@@ -71,14 +120,14 @@ if os.path.exists(risk_data_file):
             # refresh weekly peak balance on new week
             if datetime.now(timezone.utc).weekday() == 0:
                 weekly_peak_balance = daily_peak_balance
-            with open(risk_data_file, "w") as f:
-                f.write(f"{current_date},{daily_peak_balance},{weekly_peak_balance}")
+            with open(risk_data_file, 'w') as f:
+                f.write(f'{current_date},{daily_peak_balance},{weekly_peak_balance}')
 else:
     account = mt5.account_info()
     daily_peak_balance = account.balance
     weekly_peak_balance = daily_peak_balance
-    with open(risk_data_file, "w") as f:
-        f.write(f"{current_date},{daily_peak_balance},{weekly_peak_balance}")
+    with open(risk_data_file, 'w') as f:
+        f.write(f'{current_date},{daily_peak_balance},{weekly_peak_balance}')
 
 # 3) risk engine loop based on period polling_period_in_sec
 try:
@@ -97,8 +146,8 @@ try:
             daily_peak_balance = account.balance
             if daily_peak_balance > weekly_peak_balance:
                 weekly_peak_balance = daily_peak_balance
-            with open(risk_data_file, "w") as f:
-                f.write(f"{current_date},{daily_peak_balance},{weekly_peak_balance}")
+            with open(risk_data_file, 'w') as f:
+                f.write(f'{current_date},{daily_peak_balance},{weekly_peak_balance}')
 
         # 5) check if trades exceeded trades risk limit
         # then flatten all open positions to force close
@@ -117,6 +166,9 @@ try:
         elif account.equity < daily_risk_floor:
             flatten_all_positions()
             print('[DAILY RISK EXCEEDED]')
+
+        # 7) automatically calculate and apply stop loss
+        apply_stop_loss()
 
         # delay to avoid useless computation cycles
         time.sleep(polling_period_in_sec)
