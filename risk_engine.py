@@ -5,6 +5,7 @@ import keyring
 import mt5_mac as mt5
 
 # parameters for risk engine
+capital_park_in_bank = 0
 trade_risk_percentage = 0.020
 daily_risk_percentage = 0.067
 weekly_risk_percentage = 0.20
@@ -117,7 +118,7 @@ if os.path.exists(risk_data_file):
         else:
             # refresh daily peak balance on new day
             account = mt5.account_info()
-            daily_peak_balance = account.balance
+            daily_peak_balance = account.balance + capital_park_in_bank
             # refresh weekly peak balance on new week
             if datetime.now(timezone.utc).weekday() == 0:
                 weekly_peak_balance = daily_peak_balance
@@ -125,7 +126,7 @@ if os.path.exists(risk_data_file):
                 f.write(f'{current_date},{daily_peak_balance},{weekly_peak_balance}')
 else:
     account = mt5.account_info()
-    daily_peak_balance = account.balance
+    daily_peak_balance = account.balance + capital_park_in_bank
     weekly_peak_balance = daily_peak_balance
     with open(risk_data_file, 'w') as f:
         f.write(f'{current_date},{daily_peak_balance},{weekly_peak_balance}')
@@ -142,13 +143,14 @@ try:
 
             # use special code to clear screen not slower OS I/O
             print('\033[H\033[J[Intraday Risk Engine]\nMaximum:', daily_peak_balance,
-                '\nCurrent:', account.balance, '\nEquity: ', account.equity,
+                '\nCurrent:', (account.balance + capital_park_in_bank),
+                '\nEquity: ', (account.equity + capital_park_in_bank),
                 '\nP&L:    ', account.profit, '\n')
             last_printout_time = current_time
 
         # 4) update daily peak balance and store it
-        if account.balance > daily_peak_balance:
-            daily_peak_balance = account.balance
+        if (account.balance + capital_park_in_bank) > daily_peak_balance:
+            daily_peak_balance = account.balance + capital_park_in_bank
             if daily_peak_balance > weekly_peak_balance:
                 weekly_peak_balance = daily_peak_balance
             with open(risk_data_file, 'w') as f:
@@ -166,12 +168,12 @@ try:
         daily_risk_floor = (1 - daily_risk_percentage) * daily_peak_balance
         weekly_risk_floor = (1 - weekly_risk_percentage) * weekly_peak_balance
         if weekly_risk_floor > daily_risk_floor:
-            if account.equity < weekly_risk_floor:
+            if (account.equity + capital_park_in_bank) < weekly_risk_floor:
                 flatten_all_positions()
                 if not risk_exceeded_printed:
                     risk_exceeded_printed = True
                     print('[WEEKLY RISK EXCEEDED]')
-        elif account.equity < daily_risk_floor:
+        elif (account.equity + capital_park_in_bank) < daily_risk_floor:
             flatten_all_positions()
             if not risk_exceeded_printed:
                 risk_exceeded_printed = True
