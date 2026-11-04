@@ -1,5 +1,6 @@
 import os
 import time
+import math
 from datetime import datetime, timezone
 import keyring
 import mt5_mac as mt5
@@ -9,6 +10,8 @@ capital_park_in_bank = 0
 trade_risk_percentage = 0.020
 daily_risk_percentage = 0.067
 weekly_risk_percentage = 0.20
+display_trade_size = True
+trade_size_constant = 0.000444
 polling_period_in_sec = 0.250
 risk_data_file = 'risk_engine.txt'
 
@@ -46,7 +49,7 @@ def flatten_all_positions():
 def apply_stop_loss():
     # this function request just do not work after deep debugging
     # bug or limitation end-to-end, use other workaround for SL logic
-    # retain code in this section for possible future use in other ways
+    # retain code in this section for potential future use in other ways
     global trade_risk_percentage, daily_peak_balance
 
     positions = mt5.positions_get()
@@ -123,50 +126,69 @@ if os.path.exists(risk_data_file):
             if datetime.now(timezone.utc).weekday() == 0:
                 weekly_peak_balance = daily_peak_balance
             with open(risk_data_file, 'w') as f:
-                f.write(f'{current_date},{daily_peak_balance},{weekly_peak_balance}')
+                f.write(f'{current_date},{daily_peak_balance:.2f},{weekly_peak_balance:.2f}')
 else:
     account = mt5.account_info()
     daily_peak_balance = account.balance + capital_park_in_bank
     weekly_peak_balance = daily_peak_balance
     with open(risk_data_file, 'w') as f:
-        f.write(f'{current_date},{daily_peak_balance},{weekly_peak_balance}')
+        f.write(f'{current_date},{daily_peak_balance:.2f},{weekly_peak_balance:.2f}')
 
-# 3) risk engine loop based on period polling_period_in_sec
+# 3) risk engine loop based on polling_period_in_sec
 try:
     while True:
+        # get latest account figures at every cycle
         account = mt5.account_info()
-        # print only periodically to reduce cpu usage
-        current_time = time.time()
-        if (current_time - last_printout_time) >= 30:
-            # print risk notice once per print to screen cycle
-            risk_exceeded_printed = False
-
-            # use special code to clear screen not slower OS I/O
-            print('\033[H\033[J[Intraday Risk Engine]\nMaximum:', daily_peak_balance,
-                '\nCurrent:', (account.balance + capital_park_in_bank),
-                '\nEquity: ', (account.equity + capital_park_in_bank),
-                '\nP&L:    ', account.profit, '\n')
-            last_printout_time = current_time
 
         # 4) update daily peak balance and store it
+        # then calculate daily and weekly risk floors
         if (account.balance + capital_park_in_bank) > daily_peak_balance:
             daily_peak_balance = account.balance + capital_park_in_bank
             if daily_peak_balance > weekly_peak_balance:
                 weekly_peak_balance = daily_peak_balance
             with open(risk_data_file, 'w') as f:
-                f.write(f'{current_date},{daily_peak_balance},{weekly_peak_balance}')
+                f.write(f'{current_date},{daily_peak_balance:.2f},{weekly_peak_balance:.2f}')
+        daily_risk_floor = (1 - daily_risk_percentage) * daily_peak_balance
+        weekly_risk_floor = (1 - weekly_risk_percentage) * weekly_peak_balance
 
-        # 5) check if trades exceeded trades risk limit
+        # 5) only print periodically to reduce cpu usage
+        current_time = time.time()
+        if (current_time - last_printout_time) >= 30:
+            # print risk notice once per print cycle
+            risk_exceeded_printed = False
+
+            # calculate and display trade size for next trade
+            # only 1 asset, have to be modified for many assets
+            # account for remaining daily risk for next trade
+            if display_trade_size:
+                available_risk_capital = (account.equity + capital_park_in_bank) - \
+                                           max(daily_risk_floor, weekly_risk_floor)
+                trade_risk_capital = trade_risk_percentage * daily_peak_balance
+                next_trade_size = trade_size_constant * (account.equity + capital_park_in_bank)
+                if available_risk_capital <= 0:
+                    next_trade_size = 0
+                elif available_risk_capital < trade_risk_capital:
+                    next_trade_size = next_trade_size * available_risk_capital / trade_risk_capital
+                trade_size_text = '\nSize:    ' + str(math.floor(next_trade_size * 10)/10) + '\n'
+            else:
+                trade_size_text = '\n'
+
+            # use special code to clear screen not slower OS I/O
+            print('\033[H\033[J[Intraday Risk Engine]\nMaximum:', f"{daily_peak_balance:.2f}",
+                '\nCurrent:', (f"{account.balance + capital_park_in_bank:.2f}"),
+                '\nEquity: ', (f"{account.equity + capital_park_in_bank:.2f}"),
+                '\nP&L:    ', f"{account.profit:.2f}", trade_size_text)
+            last_printout_time = current_time
+
+        # 6) check if trades exceeded trades risk limit
         # then flatten all open positions to force close
         # this effectively acts as stop loss at trade limit
         if (account.profit < (-trade_risk_percentage * daily_peak_balance)):
             flatten_all_positions()
             print('[TRADE RISK EXCEEDED]')
 
-        # 6) check if balance exceeded daily risk limit
+        # 7) check if equity exceeded daily risk limit
         # then flatten all open positions if there is any
-        daily_risk_floor = (1 - daily_risk_percentage) * daily_peak_balance
-        weekly_risk_floor = (1 - weekly_risk_percentage) * weekly_peak_balance
         if weekly_risk_floor > daily_risk_floor:
             if (account.equity + capital_park_in_bank) < weekly_risk_floor:
                 flatten_all_positions()
@@ -187,5 +209,5 @@ except KeyboardInterrupt:
     pass
 
 finally:
-    # 7) terminate engine process by sending shutdown to MT5
+    # 8) terminate engine process by sending shutdown to MT5
     mt5.shutdown()
