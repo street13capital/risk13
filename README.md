@@ -7,13 +7,16 @@ So I use the mt5-mac package. Some minor modifications have to be made to work o
 For the risk engine, you can see source code at [risk_engine.py](https://github.com/street13capital/mt5_mac/blob/main/risk_engine.py) and its various parameters. There are other possible features like narrowing daily risk limit base on time left to end of trading session or profitability for the day, automated trailing stop, etc. For now I think they are better left done with discretionary evaluation.
 
 ### Key features of the risk engine
-- trailing daily risk - close positions if exceed daily risk limit marked to peak balance
-- trailing weekly risk - close positions if exceed weekly risk limit marked to peak balance
-- automated cut loss - cut open positions if unrealised loss exceeds trade risk limit
-- outside capital - allow risk calculations where not all capital is in MT5 account
-- next trade size - display next trade size accounting for remaining daily risk limit
-- breakeven stop - get out of trades if go to +0.5R and come back to breakeven
-- protective stops - progressively tighter trailing of trades at +2.5R, +4.0R, +6.5R
+
+|Feature|Description|
+|:------|:----------|
+|trailing daily risk | close positions if exceed daily risk limit marked to peak balance|
+|trailing weekly risk | close positions if exceed weekly risk limit marked to peak balance|
+|automated cut loss | cut open positions if unrealised loss exceeds trade risk limit|
+|outside capital | allow risk calculations where not all capital is in MT5 account|
+|next trade size | display next trade size accounting for remaining daily risk limit|
+|breakeven stop | get out of trades if go to +0.5R and come back to breakeven|
+|protective stops | progressively tighter trailing of trades at +2.5R, +4.0R, +6.5R|
 
 ### Sample output of risk engine
 
