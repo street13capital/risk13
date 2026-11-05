@@ -4,7 +4,7 @@ This repo is an intraday risk engine to assist with risk management for my discr
 
 So I use the mt5-mac package. Some minor modifications have to be made to work on my laptop and the mt5_mac folder has the modified package. You can find out more about mt5-mac package here [pypi.org/project/mt5-mac](https://pypi.org/project/mt5-mac). The package links to dead URLs on GitHub and the author's email is invalid too, not sure why.
 
-For the risk engine, you can see source code at [risk_engine.py](https://github.com/street13capital/mt5_mac/blob/main/risk_engine.py) and its various parameters. There are other possible features like narrowing daily risk limit base on time left to end of trading session or profitability for the day, automated trailing stop, etc. For now I think they are better left done with discretionary evaluation.
+For the risk engine, you can see source code at [risk_engine.py](https://github.com/street13capital/mt5_mac/blob/main/risk_engine.py) and its various parameters.
 
 ### Key features of the risk engine
 
