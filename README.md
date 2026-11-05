@@ -9,7 +9,7 @@ For the risk engine, you can see source code at [risk_engine.py](https://github.
 ### Key features of the risk engine
 - trailing daily risk - close positions if exceed daily risk marked to peak balance
 - trailing weekly risk - close positions if exceed weekly risk marked to peak balance
-- automated cut loss - auto cut open trades if paper loss exceeds trade risk exposure
+- automated cut loss - cut open trades if unrealised loss exceeds trade risk exposure
 - outside capital - allow risk calculations where not all capital is in MT5 account
 - next trade size - display next trade size accounting for remaining daily risk limit
 - breakeven stop - get out of a trade if it goes to +0.5R and comes back to breakeven
