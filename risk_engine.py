@@ -207,10 +207,10 @@ try:
                 trade_size_text = '\n'
 
             # use special code to clear screen not slower OS I/O
-            print('\033[H\033[J[Intraday Risk Engine]\nMaximum:', f"{daily_peak_balance:.2f}",
-                '\nCurrent:', (f"{account.balance + capital_park_in_bank:.2f}"),
-                '\nEquity: ', (f"{account.equity + capital_park_in_bank:.2f}"),
-                '\nP&L:    ', f"{account.profit:.2f}", trade_size_text)
+            print('\033[H\033[J[Intraday Risk Engine]\nMaximum:', f'{daily_peak_balance:.2f}',
+                '\nCurrent:', (f'{account.balance + capital_park_in_bank:.2f}'),
+                '\nEquity: ', (f'{account.equity + capital_park_in_bank:.2f}'),
+                '\nP&L:    ', f'{account.profit:.2f}', trade_size_text)
             last_printout_time = current_time
 
         # 6) check if trades exceeded trades risk limit
@@ -245,11 +245,13 @@ try:
             if breakeven_stop and (account.profit <= 0) and \
             (trade_peak_profit >= (breakeven_setting * trade_risk_amount)):
                 flatten_all_positions()
+                print('[BREAKEVEN STOP TRIGGERED]')
             elif protective_stop:
                 for threshold in protective_setting:
                     if (trade_peak_profit >= (threshold[0] * trade_risk_amount)) and \
                     (account.profit <= (trade_peak_profit - (threshold[1] * trade_risk_amount))):
                         flatten_all_positions()
+                        print(f'[{threshold[0]}R PROTECTIVE STOPPED]')
                         break
 
         # delay to avoid useless computation cycles
