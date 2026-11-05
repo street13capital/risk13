@@ -242,10 +242,10 @@ try:
             trade_risk_amount = trade_risk_percentage * daily_peak_balance
             if account.profit > trade_peak_profit:
                 trade_peak_profit = account.profit
-            if (trade_peak_profit >= (breakeven_setting * trade_risk_amount)) and \
-            (account.profit <= 0):
+            if breakeven_stop and (account.profit <= 0) and \
+            (trade_peak_profit >= (breakeven_setting * trade_risk_amount)):
                 flatten_all_positions()
-            else:
+            elif protective_stop:
                 for threshold in protective_setting:
                     if (trade_peak_profit >= (threshold[0] * trade_risk_amount)) and \
                     (account.profit <= (trade_peak_profit - (threshold[1] * trade_risk_amount))):
