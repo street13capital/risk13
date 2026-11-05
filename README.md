@@ -9,10 +9,10 @@ For the risk engine, you can see source code at [risk_engine.py](https://github.
 ### Key features of the risk engine
 - trailing daily risk - close positions if exceed daily risk limit marked to peak balance
 - trailing weekly risk - close positions if exceed weekly risk limit marked to peak balance
-- automated cut loss - cut open trades if unrealised loss exceeds trade risk limit
+- automated cut loss - cut open positions if unrealised loss exceeds trade risk limit
 - outside capital - allow risk calculations where not all capital is in MT5 account
 - next trade size - display next trade size accounting for remaining daily risk limit
-- breakeven stop - get out of trades if go to +0.5R and comes back to breakeven
+- breakeven stop - get out of trades if go to +0.5R and come back to breakeven
 - protective stops - progressively tighter trailing of trades at +2.5R, +4.0R, +6.5R
 
 ### Sample output of risk engine
@@ -26,7 +26,7 @@ P&L:     -34.93
 Size:    1.0
 ```
 
-### Sample script of mt5-mac package
+### Sample of mt5-mac package
 
 For the mt5-mac package, below is a minimal demo script to initialise, get account info, and end execution. The windows_terminal_path step is needed to make it work vs leaving it as default.
 
