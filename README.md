@@ -7,7 +7,7 @@ For the risk engine, you can see source code of [risk_engine.py](https://github.
 Key features of the risk engine:
 - trailing daily risk
 - trailing weekly risk
-- automated stop loss
+- automated cut loss
 - outside capital
 - next trade size
 - breakeven stop
