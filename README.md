@@ -16,7 +16,7 @@ For the risk engine, you can see source code at [risk_engine.py](https://github.
 |outside capital | allow risk calculations where not all capital is in MT5 account|
 |next trade size | display next trade size accounting for remaining daily risk limit|
 |breakeven stop | get out of trades if go to +0.5R and come back to breakeven|
-|trailing stop|once trades go to +1.0R trail the profit at 1.0R distance|
+|trailing stop|once trades go to +1.0R profit trail the profit at 1.0R distance|
 |protective stops | progressively tighter trailing of trades at +2.5R, +4.0R, +6.5R|
 
 ### Sample output of risk engine
