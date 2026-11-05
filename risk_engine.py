@@ -28,12 +28,14 @@ trade_size_constant = 0.000444
 breakeven_stop = True
 breakeven_setting = 0.5
 
-# for eg if price moved +2.5R exit when
+# if price moved +1.0R trailing stop at 1R.
+# if price moved +2.5R exit positions when
 # price retraces 0.5R from the peak profit.
 # similarly +4.0R and +6.5R to lock profits,
-# by trailing even tighter with 0.2R and 0.1R.
+# trailing even tighter with 0.2R and 0.1R.
 protective_stop = True
-protective_setting = [(2.5, 0.5),
+protective_setting = [(1.0, 1.0),
+                      (2.5, 0.5),
                       (4.0, 0.2),
                       (6.5, 0.1)]
 
