@@ -11,7 +11,7 @@ Key features of the risk engine:
 - outside capital
 - next trade size
 - breakeven stop
-- protective stop
+- protective stops
 
 Sample output of risk engine:
 
