@@ -6,20 +6,53 @@ import keyring
 import mt5_mac as mt5
 
 # parameters for risk engine
+
+# trading capital outside account
 capital_park_in_bank = 0
+
+# risk limits to flatten positions
 trade_risk_percentage = 0.020
 daily_risk_percentage = 0.067
 weekly_risk_percentage = 0.20
+
+# show trade size factoring risk limit
 display_trade_size = True
 trade_size_constant = 0.000444
+
+# stops to limit loss and protect profit
+
+# for eg if price moved +0.5R and goes back,
+# exit breakeven to prevent cutting at -1.0R.
+# could be price moved but not working out
+# so the entry signal might be invalidated.
+breakeven_stop = True
+breakeven_setting = 0.5
+
+# for eg if price moved +2.5R exit when
+# price retraces 0.5R from the peak profit.
+# similarly +4.0R and +6.5R to lock profits,
+# by trailing even tighter with 0.2R and 0.1R.
+protective_stop = True
+protective_setting = [(2.5, 0.5),
+                      (4.0, 0.2),
+                      (6.5, 0.1)]
+
+# how often to check account status
 polling_period_in_sec = 0.250
+
+# data file to store capital peaks
 risk_data_file = 'risk_engine.txt'
 
 daily_peak_balance = None
 weekly_peak_balance = None
+trade_peak_profit = 0
 last_printout_time = 0
 
 def flatten_all_positions():
+    # uncomment return for development during trading
+    # so that engine will not wrongly close positions
+    # return
+
     positions = mt5.positions_get()
     if positions is None or len(positions) == 0:
         return
@@ -183,7 +216,7 @@ try:
         # 6) check if trades exceeded trades risk limit
         # then flatten all open positions to force close
         # this effectively acts as stop loss at trade limit
-        if (account.profit < (-trade_risk_percentage * daily_peak_balance)):
+        if account.profit < (-trade_risk_percentage * daily_peak_balance):
             flatten_all_positions()
             print('[TRADE RISK EXCEEDED]')
 
@@ -201,6 +234,24 @@ try:
                 risk_exceeded_printed = True
                 print('[DAILY RISK EXCEEDED]')
 
+        # 8) breakeven and protective stops to limit loss and protect profit
+        positions = mt5.positions_get()
+        if positions is None or len(positions) == 0:
+            trade_peak_profit = 0
+        else:
+            trade_risk_amount = trade_risk_percentage * daily_peak_balance
+            if account.profit > trade_peak_profit:
+                trade_peak_profit = account.profit
+            if (trade_peak_profit >= (breakeven_setting * trade_risk_amount)) and \
+            (account.profit <= 0):
+                flatten_all_positions()
+            else:
+                for threshold in protective_setting:
+                    if (trade_peak_profit >= (threshold[0] * trade_risk_amount)) and \
+                    (account.profit <= (trade_peak_profit - (threshold[1] * trade_risk_amount))):
+                        flatten_all_positions()
+                        break
+
         # delay to avoid useless computation cycles
         time.sleep(polling_period_in_sec)
 
@@ -209,5 +260,5 @@ except KeyboardInterrupt:
     pass
 
 finally:
-    # 8) terminate engine process by sending shutdown to MT5
+    # 9) terminate engine process by sending shutdown to MT5
     mt5.shutdown()
