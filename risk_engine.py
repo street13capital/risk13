@@ -7,8 +7,11 @@ import mt5_mac as mt5
 
 # parameters for risk engine
 
-# trading capital outside account
-capital_park_in_bank = 2000
+# trading capital outside brokerage account
+# modify risk_engine.txt last field directly
+# below is just to initialise the variable
+# to create risk_engine.txt file initially
+capital_park_in_bank = 0
 
 # risk limits to flatten positions
 trade_risk_percentage = 0.020
@@ -99,8 +102,10 @@ os.system('cls' if os.name == 'nt' else 'clear')
 current_date = datetime.now(timezone.utc).strftime('%Y-%m-%d')
 if os.path.exists(risk_data_file):
     with open(risk_data_file, 'r') as f:
-        last_saved_date, last_saved_balance, saved_weekly_balance = f.read().strip().split(',')
+        last_saved_date, last_saved_balance, saved_weekly_balance, \
+            saved_capital_in_bank = f.read().strip().split(',')
         weekly_peak_balance = float(saved_weekly_balance)
+        capital_park_in_bank = float(saved_capital_in_bank)
         if last_saved_date == current_date:
             daily_peak_balance = float(last_saved_balance)
         else:
@@ -111,13 +116,15 @@ if os.path.exists(risk_data_file):
             if datetime.now(timezone.utc).weekday() == 0:
                 weekly_peak_balance = daily_peak_balance
             with open(risk_data_file, 'w') as f:
-                f.write(f'{current_date},{daily_peak_balance:.2f},{weekly_peak_balance:.2f}')
+                f.write(f'{current_date},{daily_peak_balance:.2f},'
+                    f'{weekly_peak_balance:.2f},{capital_park_in_bank:.2f}')
 else:
     account = mt5.account_info()
     daily_peak_balance = account.balance + capital_park_in_bank
     weekly_peak_balance = daily_peak_balance
     with open(risk_data_file, 'w') as f:
-        f.write(f'{current_date},{daily_peak_balance:.2f},{weekly_peak_balance:.2f}')
+        f.write(f'{current_date},{daily_peak_balance:.2f},'
+            f'{weekly_peak_balance:.2f},{capital_park_in_bank:.2f}')
 
 # 3) risk engine loop based on polling_period_in_sec
 try:
@@ -132,7 +139,8 @@ try:
             if daily_peak_balance > weekly_peak_balance:
                 weekly_peak_balance = daily_peak_balance
             with open(risk_data_file, 'w') as f:
-                f.write(f'{current_date},{daily_peak_balance:.2f},{weekly_peak_balance:.2f}')
+                f.write(f'{current_date},{daily_peak_balance:.2f},'
+                    f'{weekly_peak_balance:.2f},{capital_park_in_bank:.2f}')
         daily_risk_floor = (1 - daily_risk_percentage) * daily_peak_balance
         weekly_risk_floor = (1 - weekly_risk_percentage) * weekly_peak_balance
 
