@@ -11,6 +11,7 @@ For the risk engine, you can see source code at [risk_engine.py](https://github.
 |Feature|Description|
 |:------|:----------|
 |trailing daily risk | close positions if exceed daily risk limit marked to peak balance|
+|distributed daily risk|daily risk allocated base on which trading session in the day|
 |trailing weekly risk | close positions if exceed weekly risk limit marked to peak balance|
 |automated cut loss | cut open positions if unrealised loss exceeds trade risk limit|
 |outside capital | allow risk calculations where not all capital is in MT5 account|
