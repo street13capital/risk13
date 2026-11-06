@@ -18,6 +18,14 @@ trade_risk_percentage = 0.020
 daily_risk_percentage = 0.067
 weekly_risk_percentage = 0.20
 
+# time-based daily risk allocation
+# trading window in UTC 24h format
+# break risk to different sessions
+distributed_daily_risk = True
+trading_start_utc_time = '0700'
+trading_end_utc_time = '1900'
+total_trading_sessions = 3
+
 # show trade size factoring risk limit
 display_trade_size = True
 trade_size_constant = 0.000444
@@ -96,6 +104,15 @@ mt5.login(mt5_login, mt5_password, mt5_server)
 # initial clear screen before printing figures
 os.system('cls' if os.name == 'nt' else 'clear')
 
+# calculate trading hours in defined trading window
+trading_start_hour = int(trading_start_utc_time[:2])
+trading_start_minute = int(trading_start_utc_time[2:])
+trading_end_hour = int(trading_end_utc_time[:2])
+trading_end_minute = int(trading_end_utc_time[2:])
+total_trading_hours = (60 * trading_end_hour + trading_end_minute - \
+                       60 * trading_start_hour - trading_start_minute) / 60
+trading_hours_per_session = total_trading_hours / total_trading_sessions
+
 # 2) set peak balance from data file or reset balance
 # reset if UTC time starts a new day, ie Singapore time 8am
 # that is a good reset time at the start of Asia time zone
@@ -141,8 +158,21 @@ try:
             with open(risk_data_file, 'w') as f:
                 f.write(f'{current_date},{daily_peak_balance:.2f},'
                     f'{weekly_peak_balance:.2f},{capital_park_in_bank:.2f}')
-        daily_risk_floor = (1 - daily_risk_percentage) * daily_peak_balance
-        weekly_risk_floor = (1 - weekly_risk_percentage) * weekly_peak_balance
+
+        if not distributed_daily_risk:
+            daily_risk_floor = (1 - daily_risk_percentage) * daily_peak_balance
+            weekly_risk_floor = (1 - weekly_risk_percentage) * weekly_peak_balance
+        else:
+            # first check which trading session is the time now
+            # then calculate risk floors to allocate risk capital
+            current_time = datetime.now(timezone.utc)
+            elapsed_trading_hours = (60 * current_time.hour + current_time.minute - \
+                                     60 * trading_start_hour - trading_start_minute) / 60
+            limit_percentage = (elapsed_trading_hours + trading_hours_per_session) \
+                               // trading_hours_per_session / total_trading_sessions
+            limit_percentage = min(limit_percentage, 1.0) # handle session overshot
+            daily_risk_floor = (1 - limit_percentage * daily_risk_percentage) * daily_peak_balance
+            weekly_risk_floor = (1 - weekly_risk_percentage) * weekly_peak_balance
 
         # 5) only print periodically to reduce cpu usage
         current_time = time.time()
