@@ -10,7 +10,7 @@ For the risk engine, you can see source code at [risk_engine.py](https://github.
 
 |Feature|Description|
 |:------|:----------|
-|distributed daily risk|daily risk allocated base on which trading session is the time now|
+|distributed daily risk|daily risk allocation spread over different trading sessions in the day|
 |trailing daily risk | close positions if exceed daily risk limit marked to peak balance|
 |trailing weekly risk | close positions if exceed weekly risk limit marked to peak balance|
 |automated cut loss | cut open positions if unrealised loss exceeds trade risk limit|
