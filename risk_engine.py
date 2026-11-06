@@ -10,7 +10,7 @@ import mt5_mac as mt5
 # trading capital outside brokerage account
 # modify risk_engine.txt last field directly
 # below is just to initialise the variable
-# to create risk_engine.txt file initially
+# to create the initial risk_engine.txt file
 capital_park_in_bank = 0
 
 # risk limits to flatten positions
