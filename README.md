@@ -19,7 +19,7 @@ For the risk engine, you can see source code at [risk_engine.py](https://github.
 |1R trailing stop|once trades go to +1.5R profit trail the profit at 1.0R distance|
 |protective stops|progressively tighten trailing of trades at +2.5R, +4.0R, +6.5R|
 |outside capital|allow risk calculations where not all capital is in MT5 account|
-|equity logging|log intraday equity for live view of trading or end-of-day review|
+|equity curve|log intraday equity for live view of trading or end-of-day review|
 
 ### Sample output of risk engine
 
