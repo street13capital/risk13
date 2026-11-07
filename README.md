@@ -25,10 +25,10 @@ For the risk engine, you can see source code at [risk_engine.py](https://github.
 ```
 [Intraday Risk Engine]
 Maximum: 1234.56
-Current: 1203.04
+Current: 1177.42
 Equity:  1168.11
-P&L:     -34.93
-Size:    1.0
+P&L:     -9.31
+Size:    0.3
 ```
 
 ### Sample of mt5-mac package
