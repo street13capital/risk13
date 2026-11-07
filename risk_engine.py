@@ -270,3 +270,4 @@ except KeyboardInterrupt:
 finally:
     # 9) terminate engine process by sending shutdown to MT5
     mt5.shutdown()
+
