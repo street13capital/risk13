@@ -1,6 +1,7 @@
 import os
-import time
+import csv
 import math
+import time
 from datetime import datetime, timezone
 import keyring
 import mt5_mac as mt5
@@ -57,6 +58,10 @@ polling_period_in_sec = 0.250
 
 # data file to store capital peaks
 risk_data_file = 'risk_engine.txt'
+
+# log intraday equity for review
+log_intraday_equity = True
+equity_data_file = 'equity_curve.txt'
 
 daily_peak_balance = None
 weekly_peak_balance = None
@@ -177,6 +182,7 @@ try:
             weekly_risk_floor = (1 - weekly_risk_percentage) * weekly_peak_balance
 
         # 5) only print periodically to reduce cpu usage
+        # if enabled, log intraday equity periodically
         current_time = time.time()
         if (current_time - last_printout_time) >= 30:
             # print risk notice once per print cycle
@@ -204,6 +210,14 @@ try:
                 '\nEquity: ', (f'{account.equity + capital_park_in_bank:.2f}'),
                 '\nP&L:    ', f'{account.profit:.2f}', trade_size_text)
             last_printout_time = current_time
+
+            if log_intraday_equity:
+                with open(equity_data_file, mode='a', newline='') as f:
+                    writer = csv.writer(f)
+                    writer.writerow([
+                        datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'), 
+                        round(account.equity + capital_park_in_bank, 2)
+                    ])
 
         # 6) check if trades exceeded trades risk limit
         # then flatten all open positions to force close
