@@ -28,7 +28,7 @@ total_trading_sessions = 3
 
 # show trade size factoring risk limit
 display_trade_size = True
-trade_size_constant = 0.000444
+trade_size_constant = 0.000222
 
 # stops to limit loss and protect profit
 
