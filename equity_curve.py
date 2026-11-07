@@ -5,10 +5,10 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import matplotlib.ticker as mtick
 
-# Stops Matplotlib from forcing the window to the front upon every visual draw
+# Stops Matplotlib from forcing the window to the front upon every visual draw.
 plt.rcParams["figure.raise_window"] = False
 
-def stream_live_equity_dashboard(csv_path="equity_curve.txt", timeout_minutes=3):
+def stream_live_equity_dashboard(csv_path="equity_curve.txt", timeout_minutes=1):
     plt.ion()
     fig, (ax1, ax2) = plt.subplots(
         2, 1, 
@@ -30,7 +30,7 @@ def stream_live_equity_dashboard(csv_path="equity_curve.txt", timeout_minutes=3)
     max_empty_checks = (timeout_minutes * 60) // 30 
 
     while not os.path.exists(csv_path):
-        time.sleep(1)
+        time.sleep(30)
 
     with open(csv_path, 'r') as f:
         running = True
@@ -63,6 +63,7 @@ def stream_live_equity_dashboard(csv_path="equity_curve.txt", timeout_minutes=3)
                     equity_percentages.append(eq_pct)
                     drawdown_percentages.append(dd_pct)
                     new_lines_found = True
+
                 except (ValueError, ZeroDivisionError):
                     continue
 
@@ -96,12 +97,12 @@ def stream_live_equity_dashboard(csv_path="equity_curve.txt", timeout_minutes=3)
                     
             if consecutive_empty_checks >= max_empty_checks:
                 plt.ioff()
-                plt.savefig("session_equity_percentage.png", dpi=150, bbox_inches='tight')
+                plt.savefig("equity_curve.png", dpi=150, bbox_inches='tight')
                 running = False  
                 break
 
-            # Use below instead of plt.pause(), which natively triggers windows to jump forward.
-            # This flushes events and sleeps for 30 seconds directly inside the background thread canvas.
+            # Use below instead of plt.pause() which natively triggers windows to jump forward.
+            # Flushes events and sleeps for 30 seconds directly inside background thread canvas.
             fig.canvas.flush_events()
             fig.canvas.start_event_loop(30)
             
