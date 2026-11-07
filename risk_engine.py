@@ -27,6 +27,8 @@ trading_end_utc_time = '1900'
 total_trading_sessions = 3
 
 # show trade size factoring risk limit
+# i only implemented this for 1 asset
+# because i'm only trading 1 asset
 display_trade_size = True
 trade_size_constant = 0.000222
 
