@@ -10,15 +10,15 @@ For the risk engine, you can see source code at [risk_engine.py](https://github.
 
 |Feature|Description|
 |:------|:----------|
+|automated cut loss | cut open positions if unrealised loss exceeds trade risk limit|
 |distributed daily risk|risk allocation spread over different trading sessions in the day|
 |trailing daily risk | close positions if exceed daily risk limit marked to peak balance|
 |trailing weekly risk | close positions if exceed weekly risk limit marked to peak balance|
-|automated cut loss | cut open positions if unrealised loss exceeds trade risk limit|
-|outside capital | allow risk calculations where not all capital is in MT5 account|
 |next trade size | display next trade size accounting for remaining daily risk limit|
 |breakeven stop | get out of trades if go to +0.5R and come back to breakeven|
 |trailing stop|once trades go to +1.5R profit trail the profit at 1.0R distance|
 |protective stops | progressively tighter trailing of trades at +2.5R, +4.0R, +6.5R|
+|outside capital | allow risk calculations where not all capital is in MT5 account|
 
 ### Sample output of risk engine
 
