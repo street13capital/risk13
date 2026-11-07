@@ -3,6 +3,8 @@ import csv
 import math
 import time
 from datetime import datetime, timezone
+import sys
+import subprocess
 import keyring
 import mt5_mac as mt5
 
@@ -59,10 +61,11 @@ polling_period_in_sec = 0.250
 # data file to store capital peaks
 risk_data_file = 'risk_engine.txt'
 
-# log intraday equity for review
+# log intraday equity for viewing
 log_intraday_equity = True
-equity_data_file = 'equity_curve.txt'
+display_equity_curve = True
 
+# initialise remaining variables
 daily_peak_balance = None
 weekly_peak_balance = None
 trade_peak_profit = 0
@@ -150,6 +153,15 @@ else:
         f.write(f'{current_date},{daily_peak_balance:.2f},'
             f'{weekly_peak_balance:.2f},{capital_park_in_bank:.2f}')
 
+# start equity curve process before entering risk engine loop
+if display_equity_curve:
+    subprocess.Popen(
+        [sys.executable, 'equity_curve.py'],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        start_new_session=True
+    )
+
 # 3) risk engine loop based on polling_period_in_sec
 try:
     while True:
@@ -212,7 +224,7 @@ try:
             last_printout_time = current_time
 
             if log_intraday_equity:
-                with open(equity_data_file, mode='a', newline='') as f:
+                with open('equity_curve.txt', mode='a', newline='') as f:
                     writer = csv.writer(f)
                     writer.writerow([
                         datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'), 
