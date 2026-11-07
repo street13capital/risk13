@@ -5,6 +5,9 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import matplotlib.ticker as mtick
 
+# Sets timezone offset from default UTC time 
+TIMEZONE_OFFSET = pd.Timedelta(hours=7)
+
 # Stops Matplotlib from forcing the window to the front upon every visual draw.
 plt.rcParams["figure.raise_window"] = False
 
@@ -43,7 +46,7 @@ def stream_live_equity_dashboard(csv_path="equity_curve.txt", timeout_minutes=1)
                 
                 try:
                     ts_str, eq_str = line.strip().split(',')
-                    ts = pd.to_datetime(ts_str)
+                    ts = pd.to_datetime(ts_str) + TIMEZONE_OFFSET
                     eq = float(eq_str)
                     
                     if initial_equity is None:
