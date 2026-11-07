@@ -14,7 +14,7 @@ import mt5_mac as mt5
 capital_park_in_bank = 0
 
 # risk limits to flatten positions
-trade_risk_percentage = 0.020
+trade_risk_percentage = 0.010
 daily_risk_percentage = 0.067
 weekly_risk_percentage = 0.20
 
