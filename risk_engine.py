@@ -65,6 +65,10 @@ risk_data_file = 'risk_engine.txt'
 log_intraday_equity = True
 display_equity_curve = True
 
+# obviously need to log to display
+if display_equity_curve:
+    log_intraday_equity = True
+
 # initialise remaining variables
 daily_peak_balance = None
 weekly_peak_balance = None
