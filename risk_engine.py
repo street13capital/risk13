@@ -1,8 +1,9 @@
 import os
 import csv
 import math
-import time
 from datetime import datetime, timezone
+from decimal import Decimal
+import time
 import sys
 import subprocess
 import keyring
@@ -216,7 +217,7 @@ try:
                     next_trade_size = 0
                 elif available_risk_capital < trade_risk_capital:
                     next_trade_size = next_trade_size * available_risk_capital / trade_risk_capital
-                trade_size_text = '\nSize:    ' + str(math.floor(next_trade_size * 10)/10) + '\n'
+                trade_size_text = '\nSize:    ' + f'{Decimal(f'{next_trade_size:.2g}'):f}' + '\n'
             else:
                 trade_size_text = '\n'
 
