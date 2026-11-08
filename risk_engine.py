@@ -48,12 +48,12 @@ breakeven_setting = 0.5
 # if price moved +2.5R exit positions when
 # price retraces 0.5R from the peak profit.
 # similarly +4.0R and +6.5R to lock profits,
-# trailing even tighter with 0.2R and 0.1R.
+# trailing even tighter with 0.25R and 0.13R.
 protective_stop = True
 protective_setting = [(1.5, 1.0),
                       (2.5, 0.5),
-                      (4.0, 0.2),
-                      (6.5, 0.1)]
+                      (4.0, 0.25),
+                      (6.5, 0.13)]
 
 # how often to check account status
 polling_period_in_sec = 0.250
