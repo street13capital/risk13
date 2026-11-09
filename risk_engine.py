@@ -26,8 +26,8 @@ weekly_risk_percentage = 0.20
 # trading window in UTC 24h format
 # break risk to different sessions
 distributed_daily_risk = True
-trading_start_utc_time = '0900'
-trading_end_utc_time = '2100'
+trading_start_utc_time = '0700'
+trading_end_utc_time = '1900'
 total_trading_sessions = 3
 
 # show trade size factoring risk limit
