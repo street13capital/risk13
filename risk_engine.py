@@ -192,9 +192,11 @@ try:
             current_time = datetime.now(timezone.utc)
             elapsed_trading_hours = (60 * current_time.hour + current_time.minute - \
                                      60 * trading_start_hour - trading_start_minute) / 60
+            if elapsed_trading_hours < 0:
+                elapsed_trading_hours = 0 # handle session start earlier
             limit_percentage = (elapsed_trading_hours + trading_hours_per_session) \
                                // trading_hours_per_session / total_trading_sessions
-            limit_percentage = min(limit_percentage, 1.0) # handle session overshot
+            limit_percentage = min(limit_percentage, 1.0) # handle session end later
             daily_risk_floor = (1 - limit_percentage * daily_risk_percentage) * daily_peak_balance
             weekly_risk_floor = (1 - weekly_risk_percentage) * weekly_peak_balance
 
