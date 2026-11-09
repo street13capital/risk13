@@ -26,8 +26,8 @@ weekly_risk_percentage = 0.20
 # trading window in UTC 24h format
 # break risk to different sessions
 distributed_daily_risk = True
-trading_start_utc_time = '0700'
-trading_end_utc_time = '1900'
+trading_start_utc_time = '0900'
+trading_end_utc_time = '2100'
 total_trading_sessions = 3
 
 # show trade size factoring risk limit
@@ -257,7 +257,10 @@ try:
             flatten_all_positions()
             if not risk_exceeded_printed:
                 risk_exceeded_printed = True
-                print('[DAILY RISK EXCEEDED]')
+                if distributed_daily_risk:
+                    print('[SESSION RISK EXCEEDED]')
+                else:
+                    print('[DAILY RISK EXCEEDED]')
 
         # 8) breakeven and protective stops to limit loss and protect profit
         positions = mt5.positions_get()
