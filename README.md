@@ -32,6 +32,11 @@ P&L:     -9.31
 Size:    0.3
 ```
 
+### Sample intraday equity curve
+
+![equity_curve.png](https://raw.githubusercontent.com/street13capital/risk13/master/equity_curve.png)
+
+
 ### Sample of mt5-mac package
 
 For the mt5-mac package, below is a minimal demo script to initialise, get account info, and end execution. The windows_terminal_path step is needed to make it work vs leaving it as default.
