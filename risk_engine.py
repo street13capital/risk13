@@ -50,8 +50,11 @@ breakeven_setting = 0.5
 # price retraces 0.5R from the peak profit.
 # similarly +4.0R and +6.5R to lock profits,
 # trailing even tighter with 0.25R and 0.13R.
+# btw +2R to +2.5R big jump from 0.8 to 0.5,
+# thus add middle step +2.2R with 0.65 stop
 protective_stop = True
 protective_setting = [(1.0, 0.8),
+                      (2.2, 0.65),
                       (2.5, 0.5),
                       (4.0, 0.25),
                       (6.5, 0.13)]
