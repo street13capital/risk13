@@ -45,16 +45,13 @@ trade_size_constant = 0.000222
 breakeven_stop = True
 breakeven_setting = 0.5
 
-# if price moved +1.0R trail with 0.8R stop,
-# tighten as +1.5R and +2.0R milestones hit.
+# if price moved +1.0R trail with 0.8R stop.
 # if price moved +2.5R exit positions when
 # price retraces 0.5R from the peak profit.
 # similarly +4.0R and +6.5R to lock profits,
 # trailing even tighter with 0.25R and 0.13R.
 protective_stop = True
 protective_setting = [(1.0, 0.8),
-                      (1.5, 0.7),
-                      (2.0, 0.6),
                       (2.5, 0.5),
                       (4.0, 0.25),
                       (6.5, 0.13)]
