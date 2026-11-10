@@ -19,7 +19,7 @@ capital_park_in_bank = 0
 
 # risk limits to flatten positions
 trade_risk_percentage = 0.010
-daily_risk_percentage = 0.0445
+daily_risk_percentage = 0.067
 weekly_risk_percentage = 0.20
 
 # time-based daily risk allocation
@@ -28,7 +28,7 @@ weekly_risk_percentage = 0.20
 distributed_daily_risk = True
 trading_start_utc_time = '0700'
 trading_end_utc_time = '1900'
-total_trading_sessions = 3
+total_trading_sessions = 2
 
 # show trade size factoring risk limit
 # i only implemented this for 1 asset
