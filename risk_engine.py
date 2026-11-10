@@ -28,7 +28,7 @@ weekly_risk_percentage = 0.20
 distributed_daily_risk = True
 trading_start_utc_time = '0700'
 trading_end_utc_time = '1900'
-total_trading_sessions = 2
+total_trading_sessions = 3
 
 # show trade size factoring risk limit
 # i only implemented this for 1 asset
