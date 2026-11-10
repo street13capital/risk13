@@ -21,7 +21,7 @@ For the risk engine, you can see source code at [risk_engine.py](https://github.
 |outside capital|allow risk calculations where not all capital is in MT5 account|
 |equity curve|log intraday equity for live viewing of trading or EOD review|
 
-### Sample output of risk engine
+### Sample output of the risk engine
 
 ```
 [Intraday Risk Engine]
