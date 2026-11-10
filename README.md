@@ -34,7 +34,7 @@ Size:    0.3
 
 ### Sample intraday equity curve
 
-![equity_curve.png](https://raw.githubusercontent.com/street13capital/risk13/master/equity_curve.png)
+![equity_curve.png](https://raw.githubusercontent.com/street13capital/risk13/master/archive/equity_curve.png)
 
 
 ### Sample of mt5-mac package
