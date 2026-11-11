@@ -5,11 +5,15 @@ from datetime import datetime, timezone
 from decimal import Decimal
 import time
 import sys
+import atexit
 import subprocess
 import keyring
 import mt5_mac as mt5
 
 # parameters for risk engine
+
+# reduce terminal size to fit engine output
+resize_terminal_window = True
 
 # trading capital outside brokerage account
 # modify risk_engine.txt last field directly
@@ -132,7 +136,12 @@ mt5_password = keyring.get_password('MT5_Account', 'password')
 mt5_server = keyring.get_password('MT5_Account', 'server')
 mt5.login(mt5_login, mt5_password, mt5_server)
 # initial clear screen before printing figures
+# and reduce terminal window size if enabled
 os.system('cls' if os.name == 'nt' else 'clear')
+if resize_terminal_window:
+    original_term_size = os.get_terminal_size()
+    sys.stdout.write(f'\x1b[8;{9};{27}t')
+    sys.stdout.flush()
 
 # calculate trading hours in defined trading window
 trading_start_hour = int(trading_start_utc_time[:2])
@@ -321,5 +330,8 @@ except KeyboardInterrupt:
 
 finally:
     # 9) terminate engine process by sending shutdown to MT5
+    if resize_terminal_window:
+        sys.stdout.write(f'\x1b[8;{original_term_size.lines};{original_term_size.columns}t')
+        sys.stdout.flush()        
     mt5.shutdown()
 
