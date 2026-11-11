@@ -289,18 +289,22 @@ try:
             trade_risk_amount = trade_risk_percentage * daily_peak_balance
             if account.profit > trade_peak_profit:
                 trade_peak_profit = account.profit
+
+            positions_already_flattened = False
             if breakeven_stop and (account.profit <= 0) and \
             (trade_peak_profit >= (breakeven_setting * trade_risk_amount)):
                 flatten_all_positions()
+                positions_already_flattened = True
                 print('[BREAKEVEN STOP TRIGGERED]')
-            if profit_stop:
+            if profit_stop and not positions_already_flattened:
                 for threshold in profit_setting:
                     if (trade_peak_profit >= (threshold * trade_risk_amount)) and \
                     (account.profit <= (profit_stop_percentage * threshold * trade_risk_amount)):
                         flatten_all_positions()
+                        positions_already_flattened = True
                         print(f'[{threshold}R PROFIT STOP TRIGGERED]')
                         break
-            if protective_stop:
+            if protective_stop and not positions_already_flattened:
                 for threshold in protective_setting:
                     if (trade_peak_profit >= (threshold[0] * trade_risk_amount)) and \
                     (account.profit <= (trade_peak_profit - (threshold[1] * trade_risk_amount))):
