@@ -235,7 +235,7 @@ try:
                 trade_size_text = '\n'
 
             # use special code to clear screen not slower OS I/O
-            print('\033[H\033[J[Intraday Risk Engine]\nMaximum:', f'{daily_peak_balance:.2f}',
+            print('\033[H\033[J[Risk 13 Engine]\nMaximum:', f'{daily_peak_balance:.2f}',
                 '\nCurrent:', (f'{account.balance + capital_park_in_bank:.2f}'),
                 '\nEquity: ', (f'{account.equity + capital_park_in_bank:.2f}'),
                 '\nP&L:    ', f'{account.profit:.2f}', trade_size_text)
