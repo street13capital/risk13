@@ -17,6 +17,11 @@ import mt5_mac as mt5
 # to create the initial risk_engine.txt file
 capital_park_in_bank = 0
 
+# cut at half the trade risk instead
+# since price hit -0.5R before +0.25R
+# it might mean that bias is opposite
+enable_tight_cut_loss = True
+
 # risk limits to flatten positions
 trade_risk_percentage = 0.010
 daily_risk_percentage = 0.067
@@ -247,7 +252,11 @@ try:
         # 6) check if trades exceeded trades risk limit
         # then flatten all open positions to force close
         # this effectively acts as stop loss at trade limit
-        if account.profit < (-trade_risk_percentage * daily_peak_balance):
+        if enable_tight_cut_loss:
+            cut_loss_multiplier = 0.5
+        else:
+            cut_loss_multiplier = 1.0
+        if account.profit < (-trade_risk_percentage * cut_loss_multiplier * daily_peak_balance):
             flatten_all_positions()
             print('[TRADE RISK EXCEEDED]')
 
