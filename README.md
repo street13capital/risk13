@@ -25,7 +25,7 @@ For the risk engine, you can see source code at [risk_engine.py](https://github.
 ### Sample output of the risk engine
 
 ```
-[Intraday Risk Engine]
+[Risk 13 Engine]
 Maximum: 1234.56
 Current: 1177.42
 Equity:  1168.11
