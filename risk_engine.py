@@ -17,8 +17,8 @@ import mt5_mac as mt5
 # to create the initial risk_engine.txt file
 capital_park_in_bank = 0
 
-# cut at half the trade risk instead
-# since price hit -0.5R before +0.5R
+# cut at fraction of trade risk instead
+# as price hit -0.382R before +0.382R
 # it might mean that bias is wrong
 enable_tight_cut_loss = True
 
@@ -43,12 +43,12 @@ trade_size_constant = 0.000222
 
 # stops to limit loss and protect profit
 
-# for eg if price moved +0.5R and goes back,
-# exit breakeven to prevent cutting at -1.0R.
+# for eg if price moved +0.382R and goes back,
+# exit breakeven to avoid cut at normal cutloss
 # it could be price moved but not working out
 # so the entry signal might be invalidated.
 breakeven_stop = True
-breakeven_setting = 0.5
+breakeven_setting = 0.382
 
 # profit stops at pre-defined thresholds.
 # rationale is if price moved by an amount
@@ -56,7 +56,7 @@ breakeven_setting = 0.5
 # it suggests the trend isn't that strong
 # to switch to the trailing stop approach.
 profit_stop = True
-profit_setting = [1.0, 1.5, 2.0]
+profit_setting = [0.618, 1.0, 1.5, 2.0]
 
 # if price moved +2.5R exit positions when
 # price retraces 0.5R from the peak profit.
@@ -253,7 +253,7 @@ try:
         # then flatten all open positions to force close
         # this effectively acts as stop loss at trade limit
         if enable_tight_cut_loss:
-            cut_loss_multiplier = 0.5
+            cut_loss_multiplier = 0.382
         else:
             cut_loss_multiplier = 1.0
         if account.profit < (-trade_risk_percentage * cut_loss_multiplier * daily_peak_balance):
