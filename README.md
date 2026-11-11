@@ -15,10 +15,10 @@ For the risk engine, you can see source code at [risk_engine.py](https://github.
 |trailing daily risk|close positions if exceed daily risk limit marked to peak balance|
 |trailing weekly risk|close positions if exceed weekly risk limit marked to peak balance|
 |next trade size|display next trade size accounting for remaining daily risk limit|
-|breakeven stop|get out of trades if they hit +0.5R and come back to breakeven|
-|profit target stops|lock profits if trades retrace below +1.0R, +1.5R, +2.0R targets|
+|breakeven stop|get out of trades if they hit +0.382R and come back to breakeven|
+|profit target stops|lock profits if retrace below +0.618R, +1.0R, +1.5R, +2.0R targets|
 |protective stops|progressively tighten stops at +2.5R, +4.0R, +6.5R milestones|
-|tighter cut loss|default option to cut at half trade risk instead of full trade risk|
+|tighter cut loss|default option to cut at 0.382 trade risk instead of full trade risk|
 |outside capital|allow risk calculations where not all capital is in MT5 account|
 |equity curve|log intraday equity for live viewing of trading or EOD review|
 
