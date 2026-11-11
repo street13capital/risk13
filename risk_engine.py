@@ -42,20 +42,25 @@ trade_size_constant = 0.000222
 # exit breakeven to prevent cutting at -1.0R.
 # could be price moved but not working out
 # so the entry signal might be invalidated.
-breakeven_stop = True
+# set breakeven_stop to False here because
+# profit stop +0.5R is enabled by default.
+breakeven_stop = False
 breakeven_setting = 0.5
 
-# if price moved +1.0R trail with 0.8R stop.
+# profit stops at pre-defined thresholds.
+# rationale is if price moved by an amount
+# but retraces back instead of continuing,
+# it suggests the trend isn't that strong
+# to switch to the trailing stop approach.
+profit_stop = True
+profit_setting = [0.5, 1.0, 1.5, 2.0]
+
 # if price moved +2.5R exit positions when
 # price retraces 0.5R from the peak profit.
 # similarly +4.0R and +6.5R to lock profits,
 # trailing even tighter with 0.25R and 0.13R.
-# btw +2R to +2.5R big jump from 0.8 to 0.5,
-# thus add middle step +2.2R with 0.65 stop
 protective_stop = True
-protective_setting = [(1.0, 0.8),
-                      (2.2, 0.65),
-                      (2.5, 0.5),
+protective_setting = [(2.5, 0.5),
                       (4.0, 0.25),
                       (6.5, 0.13)]
 
@@ -277,12 +282,19 @@ try:
             (trade_peak_profit >= (breakeven_setting * trade_risk_amount)):
                 flatten_all_positions()
                 print('[BREAKEVEN STOP TRIGGERED]')
+            elif profit_stop:
+                for threshold in profit_setting:
+                    if (trade_peak_profit > (threshold * trade_risk_amount)) and \
+                    (account.profit < (threshold * trade_risk_amount)):
+                        flatten_all_positions()
+                        print(f'[{threshold}R PROFIT TRIGGERED]')
+                        break
             elif protective_stop:
                 for threshold in protective_setting:
                     if (trade_peak_profit >= (threshold[0] * trade_risk_amount)) and \
                     (account.profit <= (trade_peak_profit - (threshold[1] * trade_risk_amount))):
                         flatten_all_positions()
-                        print(f'[{threshold[0]}R PROTECTIVE STOPPED]')
+                        print(f'[{threshold[0]}R PROTECTION TRIGGERED]')
                         break
 
         # delay to avoid useless computation cycles
