@@ -18,8 +18,8 @@ import mt5_mac as mt5
 capital_park_in_bank = 0
 
 # cut at half the trade risk instead
-# since price hit -0.5R before +0.25R
-# it might mean that bias is opposite
+# since price hit -0.5R before +0.5R
+# it might mean that bias is wrong
 enable_tight_cut_loss = True
 
 # risk limits to flatten positions
@@ -43,12 +43,12 @@ trade_size_constant = 0.000222
 
 # stops to limit loss and protect profit
 
-# for eg if price moved +0.25R and goes back,
+# for eg if price moved +0.5R and goes back,
 # exit breakeven to prevent cutting at -1.0R.
 # it could be price moved but not working out
 # so the entry signal might be invalidated.
 breakeven_stop = True
-breakeven_setting = 0.25
+breakeven_setting = 0.5
 
 # profit stops at pre-defined thresholds.
 # rationale is if price moved by an amount
@@ -56,7 +56,7 @@ breakeven_setting = 0.25
 # it suggests the trend isn't that strong
 # to switch to the trailing stop approach.
 profit_stop = True
-profit_setting = [0.5, 1.0, 1.5, 2.0]
+profit_setting = [1.0, 1.5, 2.0]
 
 # if price moved +2.5R exit positions when
 # price retraces 0.5R from the peak profit.
