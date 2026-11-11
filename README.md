@@ -1,6 +1,6 @@
 ## Risk 13 Intraday Risk Engine
 
-This repo is an intraday risk engine to assist with risk management for my discretionary manual trading. The Python package mt5-mac is used to communicate with MetaTrader 5 running on my MacBook through Wine wrapper. I do not want to use a VPS or some API service to do it. I just want to run it locally on my Mac laptop.
+This repo is an intraday risk engine to assist with risk management for my discretionary manual trading. The Python package mt5-mac is used to communicate with MetaTrader 5 running on my MacBook through Wine wrapper. I do not want to use a VPS or some API service to do it. I just want to run it locally on my macOS laptop.
 
 So I use the mt5-mac package. Some minor modifications have to be made to work on my laptop and the mt5_mac folder has the modified package. You can find out more about mt5-mac package here [pypi.org/project/mt5-mac](https://pypi.org/project/mt5-mac). The package links to dead URLs on GitHub and the author's email is invalid too, not sure why.
 
