@@ -38,14 +38,12 @@ trade_size_constant = 0.000222
 
 # stops to limit loss and protect profit
 
-# for eg if price moved +0.5R and goes back,
+# for eg if price moved +0.25R and goes back,
 # exit breakeven to prevent cutting at -1.0R.
-# could be price moved but not working out
+# it could be price moved but not working out
 # so the entry signal might be invalidated.
-# set breakeven_stop to False here because
-# profit stop +0.5R is enabled by default.
-breakeven_stop = False
-breakeven_setting = 0.5
+breakeven_stop = True
+breakeven_setting = 0.25
 
 # profit stops at pre-defined thresholds.
 # rationale is if price moved by an amount
