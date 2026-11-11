@@ -5,7 +5,6 @@ from datetime import datetime, timezone
 from decimal import Decimal
 import time
 import sys
-import atexit
 import subprocess
 import keyring
 import mt5_mac as mt5
