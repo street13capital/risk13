@@ -44,7 +44,7 @@ trade_size_constant = 0.000222
 # stops to limit loss and protect profit
 
 # for eg if price moved +0.382R and goes back,
-# exit breakeven to avoid cut at normal cutloss
+# exit breakeven to avoid cut at normal cutloss.
 # it could be price moved but not working out
 # so the entry signal might be invalidated.
 breakeven_stop = True
@@ -55,8 +55,12 @@ breakeven_setting = 0.382
 # but retraces back instead of continuing,
 # it suggests the trend isn't that strong
 # to switch to the trailing stop approach.
+# the percentage is how much below target
+# after hitting before locking in profits.
+# if 1.0 too easily triggered with 1 tick.
 profit_stop = True
-profit_setting = [0.618, 1.0, 1.5, 2.0]
+profit_stop_percentage = 0.80
+profit_setting = [0.618, 0.81, 1.0, 1.25, 1.5, 1.75, 2.0, 2.25]
 
 # if price moved +2.5R exit positions when
 # price retraces 0.5R from the peak profit.
@@ -289,14 +293,14 @@ try:
             (trade_peak_profit >= (breakeven_setting * trade_risk_amount)):
                 flatten_all_positions()
                 print('[BREAKEVEN STOP TRIGGERED]')
-            elif profit_stop:
+            if profit_stop:
                 for threshold in profit_setting:
-                    if (trade_peak_profit > (threshold * trade_risk_amount)) and \
-                    (account.profit < (threshold * trade_risk_amount)):
+                    if (trade_peak_profit >= (threshold * trade_risk_amount)) and \
+                    (account.profit <= (profit_stop_percentage * threshold * trade_risk_amount)):
                         flatten_all_positions()
                         print(f'[{threshold}R PROFIT STOP TRIGGERED]')
                         break
-            elif protective_stop:
+            if protective_stop:
                 for threshold in protective_setting:
                     if (trade_peak_profit >= (threshold[0] * trade_risk_amount)) and \
                     (account.profit <= (trade_peak_profit - (threshold[1] * trade_risk_amount))):
