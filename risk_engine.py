@@ -285,14 +285,14 @@ try:
                     if (trade_peak_profit > (threshold * trade_risk_amount)) and \
                     (account.profit < (threshold * trade_risk_amount)):
                         flatten_all_positions()
-                        print(f'[{threshold}R PROFIT TRIGGERED]')
+                        print(f'[{threshold}R PROFIT STOP TRIGGERED]')
                         break
             elif protective_stop:
                 for threshold in protective_setting:
                     if (trade_peak_profit >= (threshold[0] * trade_risk_amount)) and \
                     (account.profit <= (trade_peak_profit - (threshold[1] * trade_risk_amount))):
                         flatten_all_positions()
-                        print(f'[{threshold[0]}R PROTECTION TRIGGERED]')
+                        print(f'[{threshold[0]}R PROTECTIVE STOP TRIGGERED]')
                         break
 
         # delay to avoid useless computation cycles
