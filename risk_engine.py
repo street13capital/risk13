@@ -11,6 +11,10 @@ import mt5_mac as mt5
 
 # parameters for risk engine
 
+# micro trading option to trade 1/10 size
+# for testing and development of engine
+micro_trading_enabled = True
+
 # reduce terminal size to fit engine output
 resize_terminal_window = True
 
@@ -29,6 +33,10 @@ enable_tight_cut_loss = True
 trade_risk_percentage = 0.010
 daily_risk_percentage = 0.067
 weekly_risk_percentage = 0.20
+if micro_trading_enabled:
+    trade_risk_percentage /= 10
+    daily_risk_percentage /= 10
+    weekly_risk_percentage /= 10
 
 # time-based daily risk allocation
 # trading window in UTC 24h format
@@ -43,6 +51,8 @@ total_trading_sessions = 3
 # because i'm only trading 1 asset
 display_trade_size = True
 trade_size_constant = 0.000222
+if micro_trading_enabled:
+    trade_size_constant /= 10
 
 # stops to limit loss and protect profit
 
@@ -62,7 +72,7 @@ breakeven_setting = 0.382
 # after hitting before locking in profits.
 # if 1.0 too easily triggered with 1 tick.
 profit_stop = True
-profit_stop_percentage = 0.80
+profit_stop_percentage = 0.786
 profit_setting = [0.618, 0.81, 1.0, 1.25, 1.5, 1.75, 2.0, 2.25]
 
 # if price moved +2.5R exit positions when
