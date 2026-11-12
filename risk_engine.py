@@ -147,6 +147,7 @@ mt5.login(mt5_login, mt5_password, mt5_server)
 # initial clear screen before printing figures
 # and reduce terminal window size if enabled
 os.system('cls' if os.name == 'nt' else 'clear')
+# optimally reduce terminal size to show status
 if resize_terminal_window:
     original_term_size = os.get_terminal_size()
     sys.stdout.write(f'\x1b[8;{9};{27}t')
