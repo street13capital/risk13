@@ -25,7 +25,7 @@ resize_terminal_window = True
 capital_park_in_bank = 0
 
 # cut at fraction of trade risk instead
-# as price hit -0.382R before +0.382R
+# as price hit -0.236R before +0.382R
 # it might mean that bias is wrong
 enable_tight_cut_loss = True
 
@@ -73,7 +73,7 @@ breakeven_setting = 0.382
 # if 1.0 too easily triggered with 1 tick.
 profit_stop = True
 profit_stop_percentage = 0.786
-profit_setting = [0.618, 0.81, 1.0, 1.25, 1.5, 1.75, 2.0, 2.25]
+profit_setting = [0.618, 0.809, 1.0, 1.25, 1.5, 1.75, 2.0, 2.25]
 
 # if price moved +2.5R exit positions when
 # price retraces 0.5R from the peak profit.
@@ -276,7 +276,7 @@ try:
         # then flatten all open positions to force close
         # this effectively acts as stop loss at trade limit
         if enable_tight_cut_loss:
-            cut_loss_multiplier = 0.382
+            cut_loss_multiplier = 0.236
         else:
             cut_loss_multiplier = 1.0
         if account.profit < (-trade_risk_percentage * cut_loss_multiplier * daily_peak_balance):
