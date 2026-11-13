@@ -9,13 +9,21 @@ import subprocess
 import keyring
 import mt5_mac as mt5
 
-# parameters for risk engine
+# parameters for Risk 13 intraday risk engine
 
 # micro trading option to trade 1/10 size
 # for testing and development of engine
 micro_trading_enabled = True
 
-# reduce terminal size to fit engine output
+# time-based daily risk allocation
+# trading window in UTC 24h format
+# split risk to different sessions
+distributed_daily_risk = True
+trading_start_utc_time = '0700'
+trading_end_utc_time = '1900'
+total_trading_sessions = 3
+
+# reduce terminal size to fit output
 resize_terminal_window = True
 
 # trading capital outside brokerage account
@@ -26,7 +34,7 @@ capital_park_in_bank = 0
 
 # cut at fraction of trade risk instead
 # as price hit -0.236R before +0.382R
-# it might mean that bias is wrong
+# so it might mean the bias is wrong
 enable_tight_cut_loss = True
 
 # risk limits to flatten positions
@@ -37,14 +45,6 @@ if micro_trading_enabled:
     trade_risk_percentage /= 10
     daily_risk_percentage /= 10
     weekly_risk_percentage /= 10
-
-# time-based daily risk allocation
-# trading window in UTC 24h format
-# break risk to different sessions
-distributed_daily_risk = True
-trading_start_utc_time = '0700'
-trading_end_utc_time = '1900'
-total_trading_sessions = 3
 
 # show trade size factoring risk limit
 # i only implemented this for 1 asset
@@ -68,7 +68,7 @@ breakeven_setting = 0.382
 # but retraces back instead of continuing,
 # it suggests the trend isn't that strong
 # to switch to the trailing stop approach.
-# the percentage is how much below target
+# the percentage is at how much of target
 # after hitting before locking in profits.
 # if 1.0 too easily triggered with 1 tick.
 profit_stop = True
@@ -144,6 +144,7 @@ mt5_login = int(keyring.get_password('MT5_Account', 'login'))
 mt5_password = keyring.get_password('MT5_Account', 'password')
 mt5_server = keyring.get_password('MT5_Account', 'server')
 mt5.login(mt5_login, mt5_password, mt5_server)
+
 # initial clear screen before printing figures
 # and reduce terminal window size if enabled
 os.system('cls' if os.name == 'nt' else 'clear')
@@ -192,7 +193,7 @@ else:
         f.write(f'{current_date},{daily_peak_balance:.2f},'
             f'{weekly_peak_balance:.2f},{capital_park_in_bank:.2f}')
 
-# start equity curve process before entering risk engine loop
+# start equity curve background process before entering loop
 if display_equity_curve:
     subprocess.Popen(
         [sys.executable, 'equity_curve.py'],
@@ -227,10 +228,10 @@ try:
             elapsed_trading_hours = (60 * current_time.hour + current_time.minute - \
                                      60 * trading_start_hour - trading_start_minute) / 60
             if elapsed_trading_hours < 0:
-                elapsed_trading_hours = 0 # handle session start earlier
+                elapsed_trading_hours = 0 # handle session starting earlier
             limit_percentage = (elapsed_trading_hours + trading_hours_per_session) \
                                // trading_hours_per_session / total_trading_sessions
-            limit_percentage = min(limit_percentage, 1.0) # handle session end later
+            limit_percentage = min(limit_percentage, 1.0) # handle session ending later
             daily_risk_floor = (1 - limit_percentage * daily_risk_percentage) * daily_peak_balance
             weekly_risk_floor = (1 - weekly_risk_percentage) * weekly_peak_balance
 
@@ -242,7 +243,7 @@ try:
             risk_exceeded_printed = False
 
             # calculate and display trade size for next trade
-            # only 1 asset, have to be modified for many assets
+            # only 1 asset here, can be adapted for many assets
             # account for remaining daily risk for next trade
             if display_trade_size:
                 available_risk_capital = (account.equity + capital_park_in_bank) - \
@@ -340,6 +341,7 @@ except KeyboardInterrupt:
 
 finally:
     # 9) terminate engine process by sending shutdown to MT5
+    # resize back terminal window if needed to original size
     if resize_terminal_window:
         sys.stdout.write(f'\x1b[8;{original_term_size.lines};{original_term_size.columns}t')
         sys.stdout.flush()        
