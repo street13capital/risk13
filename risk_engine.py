@@ -13,7 +13,7 @@ import subprocess
 import keyring
 import mt5_mac as mt5
 
-# parameters for Risk 13 intraday risk engine
+# parameters for intraday risk engine
 
 # micro trading option to trade 1/10 size
 # for testing and development of engine
