@@ -77,16 +77,18 @@ breakeven_setting = 0.382
 # if 1.0 too easily triggered with 1 tick.
 profit_stop = True
 profit_stop_percentage = 0.786
-profit_setting = [0.618, 0.81,
-                  1.0, 1.25, 1.5,
-                  1.75, 2.0, 2.25]
+profit_setting = [0.618, 0.81, 1.0, 1.25]
 
 # if price moved +2.5R, exit positions when
 # price retraces 0.5R from the peak profit.
 # similarly +4.0R and +6.5R to lock profits,
 # trailing even tighter with 0.25R and 0.13R.
+# also, start trailing at +1.5R to lock profits
+# because that is already 6.35x of tight cutloss.
 protective_stop = True
-protective_setting = [(2.5, 0.5),
+protective_setting = [(1.5, 0.3),
+                      (2.0, 0.4),
+                      (2.5, 0.5),
                       (4.0, 0.25),
                       (6.5, 0.13)]
 
