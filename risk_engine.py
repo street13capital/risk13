@@ -1,3 +1,7 @@
+"""RISK 13 INTRADAY RISK ENGINE FOR METATRADER 5 RUNNING ON MACOS"""
+# https://github.com/street13capital/risk13/blob/master/LICENSE
+# MIT License, Copyright 2026 苏昭鸣
+
 import os
 import csv
 import math
