@@ -83,7 +83,7 @@ profit_setting = [0.618, 0.81, 1.0, 1.25]
 # price retraces 0.5R from the peak profit.
 # similarly +4.0R and +6.5R to lock profits,
 # trailing even tighter with 0.25R and 0.13R.
-# also, start trailing at +1.5R to lock profits
+# also started trailing at +1.5R to lock profits
 # because that is already 6.35x of tight cutloss.
 protective_stop = True
 protective_setting = [(1.5, 0.3),
@@ -142,6 +142,45 @@ def flatten_all_positions():
             'type_filling': mt5.ORDER_FILLING_IOC,
         }
         result = mt5.order_send(close_payload)
+
+def open_new_trade(symbol, direction, lot_size, comment='', sl_pips=None, tp_pips=None):
+    symbol_info = mt5.symbol_info(symbol)
+    if not symbol_info:
+        return None
+
+    # safeguard in case not in watchlist
+    # and API call return execution error
+    if not symbol_info.visible:
+        mt5.symbol_select(symbol, True)
+
+    # confirm there is price quotation
+    tick = mt5.symbol_info_tick(symbol)
+    if not tick:
+        return None
+
+    pip = symbol_info.point * 10
+    decimal_digits = symbol_info.digits
+    is_buy = direction.upper() == 'BUY'
+    price = tick.ask if is_buy else tick.bid
+    trade_type = mt5.ORDER_TYPE_BUY if is_buy else mt5.ORDER_TYPE_SELL
+    sl = round(price + (-1 if is_buy else 1) * sl_pips * pip, decimal_digits) if sl_pips else 0.0
+    tp = round(price + (1 if is_buy else -1) * tp_pips * pip, decimal_digits) if tp_pips else 0.0
+
+    deal_request = {
+        'action': mt5.TRADE_ACTION_DEAL,
+        'symbol': symbol,
+        'volume': float(lot_size),
+        'type': trade_type,
+        'price': price,
+        'sl': sl,
+        'tp': tp,
+        'deviation': 10,
+        'magic': 999999,
+        'comment': comment,
+        'type_time': mt5.ORDER_TIME_GTC,
+        'type_filling': mt5.ORDER_FILLING_IOC,
+    }
+    result = mt5.order_send(deal_request)
 
 # 1) connect to local MT5 instance running on macOS,
 # using python keyring to securely store credentials
