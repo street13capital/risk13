@@ -158,6 +158,7 @@ def open_new_trade(symbol, direction, lot_size, comment='', sl_pips=None, tp_pip
     if not tick:
         return None
 
+    # prepare parameters for API request
     pip = symbol_info.point * 10
     decimal_digits = symbol_info.digits
     is_buy = direction.upper() == 'BUY'
