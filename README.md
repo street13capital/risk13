@@ -6,7 +6,7 @@ So I use the mt5-mac package. Some minor modifications have to be made to work o
 
 For the risk engine, you can see source code at [risk_engine.py](https://github.com/street13capital/mt5_mac/blob/main/risk_engine.py) and its various parameters. IMPORTANT - every trader is different. To use a risk engine effectively, the trader needs to enable features that he wants and set parameters that work for him. The engine can be adapted to work with other brokerages for eg IBKR APIs.
 
-### Key features of the risk engine
+### Features of the risk engine
 
 |Feature|Description|
 |:------|:----------|
