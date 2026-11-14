@@ -6,12 +6,17 @@ import os
 import csv
 import math
 from datetime import datetime, timezone
-from decimal import Decimal
+from decimal import Decimal, ROUND_DOWN
 import time
 import sys
 import subprocess
 import keyring
 import mt5_mac as mt5
+
+import tty
+import termios
+import select
+import atexit
 
 # parameters for intraday risk engine
 
@@ -26,6 +31,12 @@ distributed_daily_risk = True
 trading_start_utc_time = '0700'
 trading_end_utc_time = '1900'
 total_trading_sessions = 3
+
+# enable keys to long, short, close trades
+# b = buy (long), n = close, m = sell (short)
+# edit default_trade_symbol and trade_size_constant
+# in the later section below to set what to trade
+enable_keys_to_trade = True
 
 # reduce terminal size to fit output
 resize_terminal_window = True
@@ -54,7 +65,11 @@ if micro_trading_enabled:
 # i only implemented this for 1 asset
 # because i'm only trading 1 asset
 display_trade_size = True
+default_trade_symbol = 'EURUSD'
+# lots size relative to capital
 trade_size_constant = 0.000222
+# base on trade risk percentage
+default_stop_loss_pips = 4.5
 if micro_trading_enabled:
     trade_size_constant /= 10
 
@@ -143,8 +158,49 @@ def flatten_all_positions():
         }
         result = mt5.order_send(close_payload)
 
-# 1) connect to local MT5 instance running on macOS,
-# using python keyring to securely store credentials
+def open_new_trade(symbol, direction, lot_size, comment='', sl_pips=None, tp_pips=None):
+    symbol_info = mt5.symbol_info(symbol)
+    if not symbol_info:
+        return None
+
+    # safeguard in case not in watchlist
+    # and API call return execution error
+    if not symbol_info.visible:
+        mt5.symbol_select(symbol, True)
+
+    # confirm there is price quotation
+    tick = mt5.symbol_info_tick(symbol)
+    if not tick:
+        return None
+
+    # prepare parameters for API request
+    pip = symbol_info.point * 10
+    decimal_digits = symbol_info.digits
+    is_buy = direction.upper() == 'BUY'
+    price = tick.ask if is_buy else tick.bid
+    trade_type = mt5.ORDER_TYPE_BUY if is_buy else mt5.ORDER_TYPE_SELL
+    sl = round(price + (-1 if is_buy else 1) * sl_pips * pip, decimal_digits) if sl_pips else 0.0
+    tp = round(price + (1 if is_buy else -1) * tp_pips * pip, decimal_digits) if tp_pips else 0.0
+
+    deal_request = {
+        'action': mt5.TRADE_ACTION_DEAL,
+        'symbol': symbol,
+        'volume': float(lot_size),
+        'type': trade_type,
+        'price': price,
+        'sl': sl,
+        'tp': tp,
+        'deviation': 10,
+        'magic': 999999,
+        'comment': comment,
+        'type_time': mt5.ORDER_TIME_GTC,
+        'type_filling': mt5.ORDER_FILLING_IOC,
+    }
+    result = mt5.order_send(deal_request)
+
+# 1) connect to local MT5 instance running on macOS.
+# using python keyring to securely store credentials,
+# then continue with other initialisation prepwork.
 # terminal path override is needed to work vs the default using \\
 windows_terminal_path = 'C:/Program Files/MetaTrader 5/terminal64.exe'
 mt5.initialize(path=windows_terminal_path)
@@ -161,6 +217,15 @@ if resize_terminal_window:
     original_term_size = os.get_terminal_size()
     sys.stdout.write(f'\x1b[8;{9};{27}t')
     sys.stdout.flush()
+
+# below accept key inputs without enter
+# and restore original setting on exit
+def restore_terminal():
+    termios.tcsetattr(stdin_fd, termios.TCSADRAIN, old_terminal_settings)
+stdin_fd = sys.stdin.fileno()
+old_terminal_settings = termios.tcgetattr(stdin_fd)
+atexit.register(restore_terminal)
+tty.setcbreak(stdin_fd)
 
 # calculate trading hours in defined trading window
 trading_start_hour = int(trading_start_utc_time[:2])
@@ -340,15 +405,36 @@ try:
                         print(f'[{threshold[0]}R PROTECTIVE STOP TRIGGERED]')
                         break
 
-        # delay to avoid useless computation cycles
-        time.sleep(polling_period_in_sec)
+        # 9) handle pre-defined keys to place or close trades
+        # will wait up to polling_period_in_sec delay but
+        # immediately execute on keypress detected 
+        if enable_keys_to_trade:
+            key_ready, _, _ = select.select([sys.stdin], [], [], polling_period_in_sec)
+            if key_ready:
+                key_pressed = sys.stdin.read(1).lower()
+                lot_size = float(Decimal(str(next_trade_size)).quantize(Decimal("0.01"), \
+                    rounding=ROUND_DOWN))
+                if key_pressed == 'n':
+                    flatten_all_positions()
+                    print('[CLOSE ORDER SENT]')
+                elif key_pressed == 'b':
+                    open_new_trade(default_trade_symbol, 'BUY', lot_size, \
+                        sl_pips=default_stop_loss_pips)
+                    print('[BUY ORDER SENT]')
+                elif key_pressed == 'm':
+                    open_new_trade(default_trade_symbol, 'SELL', lot_size, \
+                        sl_pips=default_stop_loss_pips)
+                    print('[SELL ORDER SENT]')
+        else: 
+            # delay anyway avoid useless computation cycles
+            time.sleep(polling_period_in_sec)
 
 except KeyboardInterrupt:
     # graceful exit for Control+C to kill risk engine process
     pass
 
 finally:
-    # 9) terminate engine process by sending shutdown to MT5
+    # 10) terminate engine process by sending shutdown to MT5
     # resize back terminal window if needed to original size
     if resize_terminal_window:
         sys.stdout.write(f'\x1b[8;{original_term_size.lines};{original_term_size.columns}t')
