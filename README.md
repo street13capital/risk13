@@ -10,7 +10,7 @@ For the risk engine, you can see source code at [risk_engine.py](https://github.
 
 |Feature|Description|
 |:------|:----------|
-|order management|auto-sized buy, close, sell trades with 'b', 'n', 'm' key strokes|
+|order management|send buy, close, sell auto-sized orders with 'b', 'n', 'm' keys|
 |automated cut loss |cut open positions if unrealised loss exceeds trade risk limit|
 |distributed daily risk|risk allocation spread over different trading sessions in the day|
 |trailing daily risk|close positions if exceed daily risk limit marked to peak balance|
