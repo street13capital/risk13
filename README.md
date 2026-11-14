@@ -23,7 +23,7 @@ For the risk engine, you can see source code at [risk_engine.py](https://github.
 |equity curve|log intraday equity for live viewing of trading or EOD review|
 |micro trading|option to trade at 1/10 size for testing and development|
 
-### Sample output of the risk engine
+### Sample output of risk engine
 
 ```
 [Risk 13 Engine]
