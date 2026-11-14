@@ -1,5 +1,45 @@
 # archived functions here to keep risk engine script clean
 
+def open_new_trade(symbol, direction, lot_size, comment='', sl_pips=None, tp_pips=None):
+    symbol_info = mt5.symbol_info(symbol)
+    if not symbol_info:
+        return None
+
+    # safeguard in case not in watchlist
+    # and API call return execution error
+    if not symbol_info.visible:
+        mt5.symbol_select(symbol, True)
+
+    # confirm there is price quotation
+    tick = mt5.symbol_info_tick(symbol)
+    if not tick:
+        return None
+
+    # prepare parameters for API request
+    pip = symbol_info.point * 10
+    decimal_digits = symbol_info.digits
+    is_buy = direction.upper() == 'BUY'
+    price = tick.ask if is_buy else tick.bid
+    trade_type = mt5.ORDER_TYPE_BUY if is_buy else mt5.ORDER_TYPE_SELL
+    sl = round(price + (-1 if is_buy else 1) * sl_pips * pip, decimal_digits) if sl_pips else 0.0
+    tp = round(price + (1 if is_buy else -1) * tp_pips * pip, decimal_digits) if tp_pips else 0.0
+
+    deal_request = {
+        'action': mt5.TRADE_ACTION_DEAL,
+        'symbol': symbol,
+        'volume': float(lot_size),
+        'type': trade_type,
+        'price': price,
+        'sl': sl,
+        'tp': tp,
+        'deviation': 10,
+        'magic': 999999,
+        'comment': comment,
+        'type_time': mt5.ORDER_TIME_GTC,
+        'type_filling': mt5.ORDER_FILLING_IOC,
+    }
+    result = mt5.order_send(deal_request)
+
 def apply_stop_loss():
     # this function request just do not work after deep debugging
     # bug or limitation end-to-end, use other workaround for SL logic
