@@ -12,7 +12,6 @@ import sys
 import subprocess
 import keyring
 import mt5_mac as mt5
-
 import tty
 import termios
 import select
@@ -412,7 +411,7 @@ try:
             key_ready, _, _ = select.select([sys.stdin], [], [], polling_period_in_sec)
             if key_ready:
                 key_pressed = sys.stdin.read(1).lower()
-                lot_size = float(Decimal(str(next_trade_size)).quantize(Decimal("0.01"), \
+                lot_size = float(Decimal(str(next_trade_size)).quantize(Decimal('0.01'), \
                     rounding=ROUND_DOWN))
                 if key_pressed == 'n':
                     flatten_all_positions()
