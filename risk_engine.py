@@ -245,7 +245,7 @@ try:
 
         # 5) only print periodically to reduce cpu usage
         # if enabled, log intraday equity periodically
-        current_time = time.time()
+        current_time = time.monotonic()
         if (current_time - last_printout_time) >= 30:
             # print risk notice once per print cycle
             risk_exceeded_printed = False
