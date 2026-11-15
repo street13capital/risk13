@@ -11,7 +11,7 @@ For the risk engine, you can see source code at [risk_engine.py](https://github.
 |Feature|Description|
 |:------|:----------|
 |order shortcuts|send buy, close, sell auto-sized orders with 'b', 'n', 'm' keys|
-|watchlist support|define symbols and their parameters to be traded|
+|watchlist support|define symbols and their trade lot size, stop loss|
 |automated cut loss |cut open positions if unrealised loss exceeds trade risk limit|
 |distributed daily risk|risk allocation spread over different trading sessions in the day|
 |trailing daily risk|close positions if exceed daily risk limit marked to peak balance|
