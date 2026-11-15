@@ -53,8 +53,8 @@ enable_tight_cut_loss = True
 
 # risk limits to flatten positions
 trade_risk_percentage = 0.010
-daily_risk_percentage = 0.067
-weekly_risk_percentage = 0.20
+daily_risk_percentage = 0.063
+weekly_risk_percentage = 0.18
 if micro_trading_enabled:
     trade_risk_percentage /= 10
     daily_risk_percentage /= 10
