@@ -33,7 +33,7 @@ total_trading_sessions = 3
 
 # enable keys to long, short, close trades
 # b = buy (long), n = close, m = sell (short)
-# edit default_trade_symbol and trade_size_constant
+# edit watchlist_symbols and selected_trade_symbol
 # in the later section below to set what to trade
 enable_keys_to_trade = True
 
@@ -61,14 +61,23 @@ if micro_trading_enabled:
     weekly_risk_percentage /= 10
 
 # show trade size factoring risk limit
-# i only implemented this for 1 asset
-# because i'm only trading 1 asset
 display_trade_size = True
-default_trade_symbol = 'EURUSD'
-# lots size relative to capital
-trade_size_constant = 0.000222
-# base on trade risk percentage
-default_stop_loss_pips = 4.5
+
+# define symbols with their parameters
+# lot size ratio relative to capital
+# and pips for stop loss at trade risk
+# eg below is 45 points and 250 points
+watchlist_symbols = [('EURUSD', 0.000222, 4.5),
+                     ('BTCUSD', 0.000040, 2500)]
+
+# set selected symbol from above watchlist
+# 0 is the first one, 1 is second one etc
+selected_trade_symbol = 1
+
+# load selected trade symbol parameters
+default_trade_symbol = watchlist_symbols[selected_trade_symbol][0]
+trade_size_constant = watchlist_symbols[selected_trade_symbol][1]
+default_stop_loss_pips = watchlist_symbols[selected_trade_symbol][2]
 if micro_trading_enabled:
     trade_size_constant /= 10
 
@@ -315,8 +324,7 @@ try:
             risk_exceeded_printed = False
 
             # calculate and display trade size for next trade
-            # only 1 asset here, can be adapted for many assets
-            # account for remaining daily risk for next trade
+            # accounting for remaining daily risk for next trade
             if display_trade_size:
                 available_risk_capital = (account.equity + capital_park_in_bank) - \
                                            max(daily_risk_floor, weekly_risk_floor)
