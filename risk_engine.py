@@ -21,7 +21,7 @@ import atexit
 
 # micro trading option to trade 1/10 size
 # for testing and development of engine
-micro_trading_enabled = True
+micro_trading_enabled = False
 
 # time-based daily risk allocation
 # trading window in UTC 24h format
@@ -432,6 +432,18 @@ try:
                     open_new_trade(default_trade_symbol, 'SELL', lot_size, \
                         sl_pips=default_stop_loss_pips)
                     print('[SELL ORDER SENT]')
+                elif key_pressed.isdigit():
+                    if len(watchlist_symbols) > int(key_pressed):
+                        selected_trade_symbol = int(key_pressed)
+                        default_trade_symbol = watchlist_symbols[selected_trade_symbol][0]
+                        trade_size_constant = watchlist_symbols[selected_trade_symbol][1]
+                        default_stop_loss_pips = watchlist_symbols[selected_trade_symbol][2]
+                        if micro_trading_enabled:
+                            trade_size_constant /= 10
+                        print('[' + default_trade_symbol + ' SYMBOL SELECTED]')
+                    else:
+                        print('[CHOSEN SYMBOL UNDEFINED]')
+
         else: 
             # delay anyway avoid useless computation cycles
             time.sleep(polling_period_in_sec)
