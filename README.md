@@ -17,7 +17,7 @@ For the risk engine, you can see source code at [risk_engine.py](https://github.
 |trailing daily risk|close positions if exceed daily risk limit marked to peak balance|
 |trailing weekly risk|close positions if exceed weekly risk limit marked to peak balance|
 |next trade size|display next trade size accounting for remaining daily risk limit|
-|breakeven stop|get out of trades if they hit +0.382R and come back to breakeven|
+|breakeven stop|get out of trades if they hit +0.382R and return to breakeven|
 |profit target stops|lock profits if reverse below +0.618R, +0.81R, +1.0R, +1.25R|
 |protective stops|tighten stop from +1.5R, tighten more at +2.5R, +4.0R, +6.5R|
 |tighter cut loss|default option to cut at 23.6% of trade risk instead of full risk|
