@@ -452,13 +452,21 @@ try:
                     flatten_all_positions()
                     print('[CLOSE ORDER SENT]')
                 elif key_pressed == 'b':
-                    open_new_trade(default_trade_symbol, 'BUY', lot_size, \
-                        sl_pips=default_stop_loss_pips)
-                    print('[BUY ORDER SENT]')
+                    positions = mt5.positions_get()
+                    if positions is None or len(positions) == 0:
+                        open_new_trade(default_trade_symbol, 'BUY', lot_size, \
+                            sl_pips=default_stop_loss_pips)
+                        print('[BUY ORDER SENT]')
+                    else:
+                        print('[NO ADDING TRADES]')
                 elif key_pressed == 'm':
-                    open_new_trade(default_trade_symbol, 'SELL', lot_size, \
-                        sl_pips=default_stop_loss_pips)
-                    print('[SELL ORDER SENT]')
+                    positions = mt5.positions_get()
+                    if positions is None or len(positions) == 0:
+                        open_new_trade(default_trade_symbol, 'SELL', lot_size, \
+                            sl_pips=default_stop_loss_pips)
+                        print('[SELL ORDER SENT]')
+                    else:
+                        print('[NO ADDING TRADES]')
                 elif key_pressed.isdigit():
                     if len(watchlist_symbols) > int(key_pressed):
                         selected_trade_symbol = int(key_pressed)
