@@ -238,6 +238,14 @@ old_terminal_settings = termios.tcgetattr(stdin_fd)
 atexit.register(restore_terminal)
 tty.setcbreak(stdin_fd)
 
+# below start command to not let laptop sleep
+# but allow display dim while still running
+subprocess.Popen(
+    ["caffeinate", "-i", "-w", str(os.getpid())],
+    stdout=subprocess.DEVNULL,
+    stderr=subprocess.DEVNULL
+)
+
 # calculate trading hours in defined trading window
 trading_start_hour = int(trading_start_utc_time[:2])
 trading_start_minute = int(trading_start_utc_time[2:])
