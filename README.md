@@ -27,7 +27,7 @@ For the risk engine, you can see source code at [risk_engine.py](https://github.
 |:---------------|:----------|
 |watchlist support|define trade symbols with their lot size and stop loss points|
 |order shortcuts|send buy, close, sell auto-sized orders with 'b', 'n', 'm' keys|
-|next trade size|display next trade size accounting for remaining daily risk limit|
+|next trade size|show next trade size accounting for remaining daily risk limit|
 
 |Other Features|Description|
 |:-------------|:----------|
