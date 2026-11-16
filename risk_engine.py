@@ -47,7 +47,7 @@ resize_terminal_window = True
 capital_park_in_bank = 0
 
 # cut at fraction of trade risk instead
-# as price hit -0.309R before +0.382R
+# as price hit -0.382R before +0.382R
 # so it might mean the bias is wrong
 enable_tight_cut_loss = True
 
@@ -379,7 +379,7 @@ try:
         # then flatten all open positions to force close
         # this effectively acts as stop loss at trade limit
         if enable_tight_cut_loss:
-            cut_loss_multiplier = 0.309
+            cut_loss_multiplier = 0.382
         else:
             cut_loss_multiplier = 1.0
         if account.profit < (-trade_risk_percentage * cut_loss_multiplier * daily_peak_balance):
