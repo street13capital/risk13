@@ -69,7 +69,7 @@ display_trade_size = True
 # eg below is 45 points and 250 points
 watchlist_symbols = [('EURUSD', 0.000222, 4.5),
                      ('BTCUSD', 0.000040, 2500),
-                     ('USTEC',  0.000066, 1500)]
+                     ('USTEC',  0.000080, 1250)]
 
 # set selected symbol from above watchlist
 # 0 is the first one, 1 is second one etc
