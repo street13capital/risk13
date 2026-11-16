@@ -47,7 +47,7 @@ resize_terminal_window = True
 capital_park_in_bank = 0
 
 # cut at fraction of trade risk instead
-# as price hit -0.236R before +0.382R
+# as price hit -0.309R before +0.382R
 # so it might mean the bias is wrong
 enable_tight_cut_loss = True
 
@@ -108,7 +108,7 @@ profit_setting = [0.618, 0.81, 1.0, 1.25]
 # similarly +4.0R and +6.5R to lock profits,
 # trailing even tighter with 0.25R and 0.13R.
 # also started trailing at +1.5R to lock profits
-# because that is already 6.35x of tight cutloss.
+# because that is already 4.85x of tight cutloss.
 protective_stop = True
 protective_setting = [(1.5, 0.3),
                       (2.0, 0.4),
@@ -379,7 +379,7 @@ try:
         # then flatten all open positions to force close
         # this effectively acts as stop loss at trade limit
         if enable_tight_cut_loss:
-            cut_loss_multiplier = 0.236
+            cut_loss_multiplier = 0.309
         else:
             cut_loss_multiplier = 1.0
         if account.profit < (-trade_risk_percentage * cut_loss_multiplier * daily_peak_balance):
