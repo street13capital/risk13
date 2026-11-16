@@ -8,20 +8,29 @@ For the risk engine, you can see source code at [risk_engine.py](https://github.
 
 ### Features of the risk engine
 
-|Feature|Description|
-|:------|:----------|
-|order shortcuts|send buy, close, sell auto-sized orders with 'b', 'n', 'm' keys|
-|watchlist support|define trade symbols with their lot size and stop loss points|
+|Risk Management|Description|
+|:--------------|:----------|
 |automated cut loss |cut open positions if unrealised loss exceeds trade risk limit|
 |distributed daily risk|risk allocation spread over different trading sessions in the day|
 |trailing daily risk|close positions if exceed daily risk limit marked to peak balance|
 |trailing weekly risk|close positions if exceed weekly risk limit marked to peak balance|
-|next trade size|display next trade size accounting for remaining daily risk limit|
+|tighter cut loss|default option to cut at 38.2% of trade risk instead of full risk|
+|adding disabled|adding disabled to cap risk and not mess up with trailing stop|
+
+|Trade Management|Description|
+|:---------------|:----------|
 |breakeven stop|get out of trades if they hit +0.382R and return to breakeven|
 |profit target stops|lock profits if reverse below +0.618R, +0.81R, +1.0R, +1.25R|
 |protective stops|tighten stop from +1.5R, tighten more at +2.5R, +4.0R, +6.5R|
-|tighter cut loss|default option to cut at 38.2% of trade risk instead of full risk|
-|adding disabled|adding disabled to cap risk and not mess up with trailing stop|
+
+|Order Management|Description|
+|:---------------|:----------|
+|watchlist support|define trade symbols with their lot size and stop loss points|
+|order shortcuts|send buy, close, sell auto-sized orders with 'b', 'n', 'm' keys|
+|next trade size|display next trade size accounting for remaining daily risk limit|
+
+|Other Features|Description|
+|:-------------|:----------|
 |outside capital|allow risk calculations where not all capital is in MT5 account|
 |equity curve|log intraday equity for live viewing of trading or EOD review|
 |micro trading|option to trade at 1/10 size for testing and development|
