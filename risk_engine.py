@@ -135,6 +135,8 @@ daily_peak_balance = None
 weekly_peak_balance = None
 trade_peak_profit = 0
 last_printout_time = 0
+force_subloop_refresh = False
+force_refresh_msg = ''
 
 def flatten_all_positions():
     # uncomment return for development during trading
@@ -300,41 +302,51 @@ try:
                 f.write(f'{current_date},{daily_peak_balance:.2f},'
                     f'{weekly_peak_balance:.2f},{capital_park_in_bank:.2f}')
 
-        if not distributed_daily_risk:
-            daily_risk_floor = (1 - daily_risk_percentage) * daily_peak_balance
-            weekly_risk_floor = (1 - weekly_risk_percentage) * weekly_peak_balance
-        else:
-            # first check which trading session is the time now
-            # then calculate risk floors to allocate risk capital
-            current_time = datetime.now(timezone.utc)
-            elapsed_trading_hours = (60 * current_time.hour + current_time.minute - \
-                                     60 * trading_start_hour - trading_start_minute) / 60
-            if elapsed_trading_hours < 0:
-                elapsed_trading_hours = 0 # handle session starting earlier
-            limit_percentage = (elapsed_trading_hours + trading_hours_per_session) \
-                               // trading_hours_per_session / total_trading_sessions
-            limit_percentage = min(limit_percentage, 1.0) # handle session ending later
-            daily_risk_floor = (1 - limit_percentage * daily_risk_percentage) * daily_peak_balance
-            weekly_risk_floor = (1 - weekly_risk_percentage) * weekly_peak_balance
-
         # 5) only print periodically to reduce cpu usage
         # if enabled, log intraday equity periodically
         current_time = time.monotonic()
-        if (current_time - last_printout_time) >= 30:
+        if ((current_time - last_printout_time) >= 30) or force_subloop_refresh:
+            # update counter for next loop cycle
+            last_printout_time = current_time
+            # reset force refresh of this subloop
+            force_subloop_refresh = False
             # print risk notice once per print cycle
             risk_exceeded_printed = False
 
+            # risk floor calculation can skip every loop and do every 30 seconds
+            # possible that within 30 seconds a big move happened and reversed
+            # but that would be caught by the trade risk and different stops
+            # without the new daily risk floor triggered for this edge case
+            if not distributed_daily_risk:
+                daily_risk_floor = (1 - daily_risk_percentage) * daily_peak_balance
+                weekly_risk_floor = (1 - weekly_risk_percentage) * weekly_peak_balance
+            else:
+                # first check which trading session is the time now
+                # then calculate risk floors to allocate risk capital
+                current_time = datetime.now(timezone.utc)
+                elapsed_trading_hours = (60 * current_time.hour + current_time.minute - \
+                                        60 * trading_start_hour - trading_start_minute) / 60
+                if elapsed_trading_hours < 0:
+                    elapsed_trading_hours = 0 # handle session starting earlier
+                limit_percentage = (elapsed_trading_hours + trading_hours_per_session) \
+                                   // trading_hours_per_session / total_trading_sessions
+                limit_percentage = min(limit_percentage, 1.0) # handle session ending later
+                daily_risk_floor = (1 - limit_percentage * daily_risk_percentage) \
+                                   * daily_peak_balance
+                weekly_risk_floor = (1 - weekly_risk_percentage) * weekly_peak_balance
+
             # calculate and display trade size for next trade
             # accounting for remaining daily risk for next trade
+            # calculate even when not displaying to place trades
+            available_risk_capital = (account.equity + capital_park_in_bank) - \
+                                        max(daily_risk_floor, weekly_risk_floor)
+            trade_risk_capital = trade_risk_percentage * daily_peak_balance
+            next_trade_size = trade_size_constant * (account.equity + capital_park_in_bank)
+            if available_risk_capital <= 0:
+                next_trade_size = 0
+            elif available_risk_capital < trade_risk_capital:
+                next_trade_size = next_trade_size * available_risk_capital / trade_risk_capital
             if display_trade_size:
-                available_risk_capital = (account.equity + capital_park_in_bank) - \
-                                           max(daily_risk_floor, weekly_risk_floor)
-                trade_risk_capital = trade_risk_percentage * daily_peak_balance
-                next_trade_size = trade_size_constant * (account.equity + capital_park_in_bank)
-                if available_risk_capital <= 0:
-                    next_trade_size = 0
-                elif available_risk_capital < trade_risk_capital:
-                    next_trade_size = next_trade_size * available_risk_capital / trade_risk_capital
                 trade_size_text = '\nSize:    ' + f'{Decimal(f'{next_trade_size:.2g}'):f}' + '\n'
             else:
                 trade_size_text = '\n'
@@ -343,8 +355,8 @@ try:
             print('\033[H\033[J[Risk 13 Engine]\nMaximum:', f'{daily_peak_balance:.2f}',
                 '\nCurrent:', (f'{account.balance + capital_park_in_bank:.2f}'),
                 '\nEquity: ', (f'{account.equity + capital_park_in_bank:.2f}'),
-                '\nP&L:    ', f'{account.profit:.2f}', trade_size_text)
-            last_printout_time = current_time
+                '\nP&L:    ', f'{account.profit:.2f}', trade_size_text, force_refresh_msg)
+            force_refresh_msg = ''
 
             if log_intraday_equity:
                 with open('equity_curve.txt', mode='a', newline='') as f:
@@ -446,7 +458,10 @@ try:
                         default_stop_loss_pips = watchlist_symbols[selected_trade_symbol][2]
                         if micro_trading_enabled:
                             trade_size_constant /= 10
-                        print('[' + default_trade_symbol + ' SYMBOL SELECTED]')
+                        # only need force refresh at this branch because trade size calculation
+                        # is done in the subloop and needs to recalculate base on new symbol
+                        force_refresh_msg = '\n[' + default_trade_symbol + ' SYMBOL SELECTED]'
+                        force_subloop_refresh = True
                     else:
                         print('[CHOSEN SYMBOL UNDEFINED]')
 
