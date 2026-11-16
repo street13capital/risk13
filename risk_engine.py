@@ -68,7 +68,8 @@ display_trade_size = True
 # and pips for stop loss at trade risk
 # eg below is 45 points and 250 points
 watchlist_symbols = [('EURUSD', 0.000222, 4.5),
-                     ('BTCUSD', 0.000040, 2500)]
+                     ('BTCUSD', 0.000040, 2500),
+                     ('USTEC',  0.000066, 1500)]
 
 # set selected symbol from above watchlist
 # 0 is the first one, 1 is second one etc
@@ -419,8 +420,13 @@ try:
             key_ready, _, _ = select.select([sys.stdin], [], [], polling_period_in_sec)
             if key_ready:
                 key_pressed = sys.stdin.read(1).lower()
-                lot_size = float(Decimal(str(next_trade_size)).quantize(Decimal('0.01'), \
-                    rounding=ROUND_DOWN))
+                if default_trade_symbol != 'USTEC':
+                    lot_size = float(Decimal(str(next_trade_size)).quantize(Decimal('0.01'), \
+                        rounding=ROUND_DOWN))
+                else:
+                    lot_size = float(Decimal(str(next_trade_size)).quantize(Decimal('0.1'), \
+                        rounding=ROUND_DOWN))
+
                 if key_pressed == 'n':
                     flatten_all_positions()
                     print('[CLOSE ORDER SENT]')
