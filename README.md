@@ -21,7 +21,7 @@ For the risk engine, you can see source code at [risk_engine.py](https://github.
 |profit target stops|lock profits if reverse below +0.618R, +0.81R, +1.0R, +1.25R|
 |protective stops|tighten stop from +1.5R, tighten more at +2.5R, +4.0R, +6.5R|
 |tighter cut loss|default option to cut at 23.6% of trade risk instead of full risk|
-|disable adding|adding trades disabled to manage risk and not mess up with trailing stop|
+|disable adding|adding disabled to cap risk and not mess up with trailing stop|
 |outside capital|allow risk calculations where not all capital is in MT5 account|
 |equity curve|log intraday equity for live viewing of trading or EOD review|
 |micro trading|option to trade at 1/10 size for testing and development|
