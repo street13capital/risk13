@@ -28,7 +28,7 @@ For the risk engine, you can see source code at [risk_engine.py](https://github.
 ### Sample output of risk engine
 
 ```
-[Risk 13 Engine]
+[Risk 13 - EURUSD]
 Maximum: 1234.56
 Current: 1177.42
 Equity:  1168.11
