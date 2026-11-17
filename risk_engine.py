@@ -510,10 +510,10 @@ try:
                             trade_size_constant /= 10
                         # only need force refresh at this branch because trade size calculation
                         # is done in the subloop and needs to recalculate base on new symbol
-                        force_refresh_msg = '\n[' + default_trade_symbol + ' SYMBOL SELECTED]'
+                        force_refresh_msg = '\n[' + default_trade_symbol + ' SELECTED]'
                         force_subloop_refresh = True
                     else:
-                        print('[CHOSEN SYMBOL UNDEFINED]')
+                        print('[SYMBOL UNDEFINED]')
 
         else: 
             # delay anyway avoid useless computation cycles
