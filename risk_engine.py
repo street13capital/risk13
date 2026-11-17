@@ -33,6 +33,7 @@ total_trading_sessions = 3
 
 # enable keys to long, short, close trades
 # b = buy (long), n = close, m = sell (short)
+# x = emergency flatten and close all positions
 # edit watchlist_symbols and selected_trade_symbol
 # in the later section below to set what to trade
 enable_keys_to_trade = True
@@ -337,7 +338,7 @@ try:
             # print risk notice once per print cycle
             risk_exceeded_printed = False
 
-            # risk floor calculation can skip every loop and do every 30 seconds
+            # risk floor calculation can skip main loop and do every 30 seconds
             # possible that within 30 seconds a big move happened and reversed
             # but that would be caught by the trade risk and different stops
             # without the new daily risk floor triggered for this edge case
@@ -415,6 +416,7 @@ try:
                 if not risk_exceeded_printed:
                     risk_exceeded_printed = True
                     print('[WEEKLY RISK EXCEEDED]')
+
         elif (account.equity + capital_park_in_bank) < daily_risk_floor:
             flatten_all_positions()
             if not risk_exceeded_printed:
