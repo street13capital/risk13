@@ -60,6 +60,7 @@ Below is a minimal demo script to initialise, get account info, and end executio
 
 ```py
 import mt5_mac as mt5
+
 # this windows_terminal_path assignment is needed to make it work
 windows_terminal_path = "C:/Program Files/MetaTrader 5/terminal64.exe"
 
