@@ -15,7 +15,7 @@ For the risk engine, you can see source code at [risk_engine.py](https://github.
 |trailing daily risk|close positions if exceed daily risk limit marked to peak balance|
 |trailing weekly risk|close positions if exceed weekly risk limit marked to peak balance|
 |tighter cut loss|default option to cut at 38.2% of trade risk instead of full risk|
-|disabled adding|default option to cap risk and not mess up with trailing stop|
+|disabled addin|default option to cap risk and not mess up with trailing stop|
 
 |Trade Management|Description|
 |:---------------|:----------|
