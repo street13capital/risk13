@@ -7,6 +7,8 @@ import csv
 import math
 from datetime import datetime, timezone
 from decimal import Decimal, ROUND_DOWN, ROUND_UP
+from collections import deque
+import numpy as np
 import time
 import sys
 import subprocess
