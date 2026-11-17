@@ -22,12 +22,13 @@ For the risk engine, you can see source code at [risk_engine.py](https://github.
 |breakeven stop|get out of trades if they hit +0.382R and return to breakeven|
 |profit target stops|lock profits if reverse below +0.618R, +0.81R, +1.0R, +1.25R|
 |protective stops|tighten stop from +1.5R, tighten more at +2.5R, +4.0R, +6.5R|
-|multiple positions|stops and risk limits support multiple concurrent symbols|
+|multiple positions|stops and risk limits work for multiple concurrent symbols|
 
 |Order Management|Description|
 |:---------------|:----------|
 |watchlist support|define trade symbols with their lot size and stop loss points|
 |order shortcuts|send buy, close, sell auto-sized orders with 'b', 'n', 'm' keys|
+|flatten shortcut|emergency flattening of all positions with 'x' key|
 |next trade size|show next trade size accounting for remaining daily risk limit|
 
 |Other Features|Description|
