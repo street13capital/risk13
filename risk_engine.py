@@ -199,7 +199,8 @@ def open_new_trade(symbol, direction, lot_size, comment='', sl_pips=None, tp_pip
     # assume major forex pairs with USD
     # pip calculation vs cent for others
     # can add on here for minors later
-    if 'USD' in symbol and symbol != 'BTCUSD':
+    # exclude major crypto, false positive
+    if 'USD' in symbol and symbol not in ['BTCUSD', 'ETHUSD', 'SOLUSD', 'ADAUSD', 'XRPUSD']:
         pip = symbol_info.point * 10
     else:
         pip = symbol_info.point * 100
