@@ -67,12 +67,13 @@ if micro_trading_enabled:
 display_trade_size = True
 
 # define symbols with their parameters
-# lot size ratio relative to capital
-# and pips for stop loss at trade risk
-# eg below is 45 points and 250 points
+# - lot size ratio relative to capital
+# - point for stop loss at trade risk
+# for eg below is 45, 250, 125 points
+# pip for forex pairs, points for others
 watchlist_symbols = [('EURUSD', 0.000222, 4.5),
-                     ('BTCUSD', 0.000040, 2500),
-                     ('USTEC',  0.000080, 1250)]
+                     ('BTCUSD', 0.000040, 250),
+                     ('USTEC',  0.000080, 125)]
 
 # set selected symbol from above watchlist
 # 0 is the first one, 1 is second one etc
@@ -188,7 +189,13 @@ def open_new_trade(symbol, direction, lot_size, comment='', sl_pips=None, tp_pip
         return None
 
     # prepare parameters for API request
-    pip = symbol_info.point * 10
+    # assume major forex pairs with USD
+    # pip calculation vs cent for others
+    # can add on here for minors later
+    if 'USD' in symbol:
+        pip = symbol_info.point * 10
+    else:
+        pip = symbol_info.point * 100
     decimal_digits = symbol_info.digits
     is_buy = direction.upper() == 'BUY'
     price = tick.ask if is_buy else tick.bid
