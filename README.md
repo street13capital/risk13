@@ -56,10 +56,11 @@ Size:    0.3
 
 For the mt5-mac package, some minor modifications have to be made to work on my laptop and the mt5_mac folder has the modified package. You can find out more about mt5-mac package here [pypi.org/project/mt5-mac](https://pypi.org/project/mt5-mac). The package links to dead URLs on GitHub and the author's email is invalid too, not sure why.
 
-Below is a minimal demo script to initialise, get account info, and end execution. The windows_terminal_path step is needed to make it work vs leaving it as default.
+Below is a minimal demo script to initialise, get account info, and end execution.
 
 ```py
 import mt5_mac as mt5
+# this windows_terminal_path assignment is needed to make it work
 windows_terminal_path = "C:/Program Files/MetaTrader 5/terminal64.exe"
 
 mt5.initialize(path=windows_terminal_path)
