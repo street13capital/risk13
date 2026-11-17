@@ -6,7 +6,7 @@ import os
 import csv
 import math
 from datetime import datetime, timezone
-from decimal import Decimal, ROUND_DOWN
+from decimal import Decimal, ROUND_DOWN, ROUND_UP
 import time
 import sys
 import subprocess
@@ -45,6 +45,9 @@ resize_terminal_window = True
 # below is just to initialise the variable
 # to create the initial risk_engine.txt file
 capital_park_in_bank = 0
+
+# disable adding of trades to cap risk
+disable_adding_trades = True
 
 # cut at fraction of trade risk instead
 # as price hit -0.382R before +0.382R
@@ -446,27 +449,27 @@ try:
                         rounding=ROUND_DOWN))
                 else:
                     lot_size = float(Decimal(str(next_trade_size)).quantize(Decimal('0.1'), \
-                        rounding=ROUND_DOWN))
+                        rounding=ROUND_UP))
 
                 if key_pressed == 'n':
                     flatten_all_positions()
                     print('[CLOSE ORDER SENT]')
                 elif key_pressed == 'b':
                     positions = mt5.positions_get()
-                    if positions is None or len(positions) == 0:
+                    if disable_adding_trades and not (positions is None or len(positions) == 0):
+                        print('[NO ADDING TRADES]')
+                    else:
                         open_new_trade(default_trade_symbol, 'BUY', lot_size, \
                             sl_pips=default_stop_loss_pips)
                         print('[BUY ORDER SENT]')
-                    else:
-                        print('[NO ADDING TRADES]')
                 elif key_pressed == 'm':
                     positions = mt5.positions_get()
-                    if positions is None or len(positions) == 0:
+                    if disable_adding_trades and not (positions is None or len(positions) == 0):
+                        print('[NO ADDING TRADES]')
+                    else:
                         open_new_trade(default_trade_symbol, 'SELL', lot_size, \
                             sl_pips=default_stop_loss_pips)
                         print('[SELL ORDER SENT]')
-                    else:
-                        print('[NO ADDING TRADES]')
                 elif key_pressed.isdigit():
                     if len(watchlist_symbols) > int(key_pressed):
                         selected_trade_symbol = int(key_pressed)
