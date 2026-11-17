@@ -53,6 +53,10 @@ disable_adding_trades = True
 # as price hit -0.382R before +0.382R
 # so it might mean the bias is wrong
 enable_tight_cut_loss = True
+if enable_tight_cut_loss:
+    cut_loss_multiplier = 0.382
+else: 
+    cut_loss_multiplier = 1.0
 
 # risk limits to flatten positions
 trade_risk_percentage = 0.010
@@ -78,6 +82,9 @@ watchlist_symbols = [('EURUSD', 0.000222, 4.5),
 # set selected symbol from above watchlist
 # 0 is the first one, 1 is second one etc
 selected_trade_symbol = 1
+
+# define list to track peak profits for symbols
+trade_peak_profit = [0] * len(watchlist_symbols)
 
 # load selected trade symbol parameters
 default_trade_symbol = watchlist_symbols[selected_trade_symbol][0]
@@ -137,17 +144,16 @@ if display_equity_curve:
 # initialise remaining variables
 daily_peak_balance = None
 weekly_peak_balance = None
-trade_peak_profit = 0
 last_printout_time = 0
 force_subloop_refresh = False
 force_refresh_msg = ''
 
-def flatten_all_positions():
+def flatten_all_positions(symbol=None):
     # uncomment return for development during trading
     # so that engine will not wrongly close positions
     # return
 
-    positions = mt5.positions_get()
+    positions = mt5.positions_get(symbol)
     if positions is None or len(positions) == 0:
         return
 
@@ -388,13 +394,18 @@ try:
         # 6) check if trades exceeded trades risk limit
         # then flatten all open positions to force close
         # this effectively acts as stop loss at trade limit
-        if enable_tight_cut_loss:
-            cut_loss_multiplier = 0.382
-        else:
-            cut_loss_multiplier = 1.0
-        if account.profit < (-trade_risk_percentage * cut_loss_multiplier * daily_peak_balance):
-            flatten_all_positions()
-            print('[TRADE RISK EXCEEDED]')
+        for index, trade_symbol in enumerate(watchlist_symbols):
+            positions = mt5.positions_get(trade_symbol[0])
+            if positions is None or len(positions) == 0:
+                pass
+            else:
+                symbol_total_profit = 0
+                for pos in positions:
+                   symbol_total_profit += pos.profit
+                if symbol_total_profit < (-trade_risk_percentage * \
+                cut_loss_multiplier * daily_peak_balance):
+                    flatten_all_positions(trade_symbol[0])
+                    print('[TRADE RISK EXCEEDED]')
 
         # 7) check if equity exceeded daily risk limit
         # then flatten all open positions if there is any
@@ -414,35 +425,43 @@ try:
                     print('[DAILY RISK EXCEEDED]')
 
         # 8) breakeven and protective stops to limit loss and protect profit
-        positions = mt5.positions_get()
-        if positions is None or len(positions) == 0:
-            trade_peak_profit = 0
-        else:
-            trade_risk_amount = trade_risk_percentage * daily_peak_balance
-            if account.profit > trade_peak_profit:
-                trade_peak_profit = account.profit
+        trade_risk_amount = trade_risk_percentage * daily_peak_balance
+        for index, trade_symbol in enumerate(watchlist_symbols): 
+            positions = mt5.positions_get(trade_symbol[0])
+            if positions is None or len(positions) == 0:
+                trade_peak_profit[index] = 0
+            else:
+                symbol_total_profit = 0
+                for pos in positions:
+                   symbol_total_profit += pos.profit
+                if symbol_total_profit > trade_peak_profit[index]:
+                    trade_peak_profit[index] = symbol_total_profit
+                positions_already_flattened = False
 
-            positions_already_flattened = False
-            if breakeven_stop and (account.profit <= 0) and \
-            (trade_peak_profit >= (breakeven_setting * trade_risk_amount)):
-                flatten_all_positions()
-                positions_already_flattened = True
-                print('[BREAKEVEN STOP TRIGGERED]')
-            if profit_stop and not positions_already_flattened:
-                for threshold in profit_setting:
-                    if (trade_peak_profit >= (threshold * trade_risk_amount)) and \
-                    (account.profit <= (profit_stop_percentage * threshold * trade_risk_amount)):
-                        flatten_all_positions()
-                        positions_already_flattened = True
-                        print(f'[{threshold}R PROFIT STOP TRIGGERED]')
-                        break
-            if protective_stop and not positions_already_flattened:
-                for threshold in protective_setting:
-                    if (trade_peak_profit >= (threshold[0] * trade_risk_amount)) and \
-                    (account.profit <= (trade_peak_profit - (threshold[1] * trade_risk_amount))):
-                        flatten_all_positions()
-                        print(f'[{threshold[0]}R PROTECTIVE STOP TRIGGERED]')
-                        break
+                if breakeven_stop and (symbol_total_profit <= 0) and \
+                (trade_peak_profit[index] >= (breakeven_setting * trade_risk_amount)):
+                    flatten_all_positions(trade_symbol[0])
+                    positions_already_flattened = True
+                    print('[BREAKEVEN STOP TRIGGERED]')
+
+                if profit_stop and not positions_already_flattened:
+                    for threshold in profit_setting:
+                        if (trade_peak_profit[index] >= (threshold * trade_risk_amount)) \
+                        and (symbol_total_profit \
+                        <= (profit_stop_percentage * threshold * trade_risk_amount)):
+                            flatten_all_positions(trade_symbol[0])
+                            positions_already_flattened = True
+                            print(f'[{threshold}R PROFIT STOP TRIGGERED]')
+                            break
+
+                if protective_stop and not positions_already_flattened:
+                    for threshold in protective_setting:
+                        if (trade_peak_profit[index] >= (threshold[0] * trade_risk_amount)) \
+                        and (symbol_total_profit \
+                        <= (trade_peak_profit[index] - (threshold[1] * trade_risk_amount))):
+                            flatten_all_positions(trade_symbol[0])
+                            print(f'[{threshold[0]}R PROTECTIVE STOP TRIGGERED]')
+                            break
 
         # 9) handle pre-defined keys to place or close trades
         # will wait up to polling_period_in_sec delay but
@@ -458,11 +477,14 @@ try:
                     lot_size = float(Decimal(str(next_trade_size)).quantize(Decimal('0.1'), \
                         rounding=ROUND_UP))
 
-                if key_pressed == 'n':
+                if key_pressed == 'x':
                     flatten_all_positions()
                     print('[CLOSE ORDER SENT]')
+                elif key_pressed == 'n':
+                    flatten_all_positions(default_trade_symbol)
+                    print('[CLOSE ORDER SENT]')
                 elif key_pressed == 'b':
-                    positions = mt5.positions_get()
+                    positions = mt5.positions_get(default_trade_symbol)
                     if disable_adding_trades and not (positions is None or len(positions) == 0):
                         print('[NO ADDING TRADES]')
                     else:
@@ -470,7 +492,7 @@ try:
                             sl_pips=default_stop_loss_pips)
                         print('[BUY ORDER SENT]')
                 elif key_pressed == 'm':
-                    positions = mt5.positions_get()
+                    positions = mt5.positions_get(default_trade_symbol)
                     if disable_adding_trades and not (positions is None or len(positions) == 0):
                         print('[NO ADDING TRADES]')
                     else:
