@@ -6,7 +6,7 @@ import os
 import csv
 import math
 from datetime import datetime, timezone
-from decimal import Decimal, ROUND_DOWN, ROUND_UP
+from decimal import Decimal, ROUND_DOWN
 import time
 import sys
 import subprocess
@@ -444,7 +444,7 @@ try:
                 (trade_peak_profit[index] >= (breakeven_setting * trade_risk_amount)):
                     flatten_all_positions(trade_symbol[0])
                     positions_already_flattened = True
-                    print('[BREAKEVEN STOP TRIGGERED]')
+                    print('[BREAKEVEN TRIGGERED]')
 
                 if profit_stop and not positions_already_flattened:
                     for threshold in profit_setting:
@@ -453,7 +453,7 @@ try:
                         <= (profit_stop_percentage * threshold * trade_risk_amount)):
                             flatten_all_positions(trade_symbol[0])
                             positions_already_flattened = True
-                            print(f'[{threshold}R PROFIT STOP TRIGGERED]')
+                            print(f'[{threshold}R STOP TRIGGERED]')
                             break
 
                 if protective_stop and not positions_already_flattened:
@@ -462,7 +462,7 @@ try:
                         and (symbol_total_profit \
                         <= (trade_peak_profit[index] - (threshold[1] * trade_risk_amount))):
                             flatten_all_positions(trade_symbol[0])
-                            print(f'[{threshold[0]}R PROTECTIVE STOP TRIGGERED]')
+                            print(f'[{threshold[0]}R STOP TRIGGERED]')
                             break
 
         # 9) handle pre-defined keys to place or close trades
