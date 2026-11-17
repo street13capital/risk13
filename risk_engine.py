@@ -394,7 +394,7 @@ try:
         # 6) check if trades exceeded trades risk limit
         # then flatten all open positions to force close
         # this effectively acts as stop loss at trade limit
-        for index, trade_symbol in enumerate(watchlist_symbols):
+        for trade_symbol in watchlist_symbols:
             positions = mt5.positions_get(trade_symbol[0])
             if positions is None or len(positions) == 0:
                 pass
