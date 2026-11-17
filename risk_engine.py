@@ -7,8 +7,6 @@ import csv
 import math
 from datetime import datetime, timezone
 from decimal import Decimal, ROUND_DOWN, ROUND_UP
-from collections import deque
-import numpy as np
 import time
 import sys
 import subprocess
@@ -201,7 +199,7 @@ def open_new_trade(symbol, direction, lot_size, comment='', sl_pips=None, tp_pip
     # assume major forex pairs with USD
     # pip calculation vs cent for others
     # can add on here for minors later
-    if 'USD' in symbol:
+    if 'USD' in symbol and symbol != 'BTCUSD':
         pip = symbol_info.point * 10
     else:
         pip = symbol_info.point * 100
@@ -478,8 +476,7 @@ try:
                     lot_size = float(Decimal(str(next_trade_size)).quantize(Decimal('0.01'), \
                         rounding=ROUND_DOWN))
                 else:
-                    lot_size = float(Decimal(str(next_trade_size)).quantize(Decimal('0.1'), \
-                        rounding=ROUND_UP))
+                    lot_size = float(Decimal(str(next_trade_size)).quantize(Decimal('0.1')))
 
                 if key_pressed == 'x':
                     flatten_all_positions()
