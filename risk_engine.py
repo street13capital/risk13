@@ -418,8 +418,13 @@ try:
             else:
                 trade_size_text = '\n'
 
+            if not swing_trading_mode:
+                trade_symbol_text = default_trade_symbol
+            else:
+                trade_symbol_text = 'SWING'
+
             # use special code to clear screen not slower OS I/O
-            print('\033[H\033[J[Risk 13 - ' + default_trade_symbol + ']' + \
+            print('\033[H\033[J[Risk 13 - ' + trade_symbol_text + ']' + \
                 '\nMaximum:', f'{daily_peak_balance:.2f}',
                 '\nCurrent:', f'{account.balance + capital_park_in_bank:.2f}',
                 '\nEquity: ', f'{account.equity + capital_park_in_bank:.2f}',
