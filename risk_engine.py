@@ -422,6 +422,30 @@ try:
                 trade_symbol_text = default_trade_symbol
             else:
                 trade_symbol_text = 'SWING'
+                # calculate remaining risk budget factoring all stop losses
+                # formula would be balance - stop losses - weekly_risk_floor
+                # fair assumption is that all positions have stop losses set
+                total_stop_losses = 0
+                positions = mt5.positions_get()
+                if positions is None or len(positions) == 0:
+                    pass
+                else:
+                    for pos in positions:
+                        # need to address this edge case of no stop loss
+                        # value will be wrong but better than no value
+                        if pos.sl == 0:
+                            pass
+                        else:
+                            position_stop_loss = abs(pos.price_open - pos.sl) * pos.volume
+                            # special handling for forex symbols because 1 lot = 100000
+                            # check for major forex pairs with USD, exclude major crypto
+                            if 'USD' in pos.symbol and pos.symbol not in \
+                            ['BTCUSD', 'ETHUSD', 'SOLUSD', 'ADAUSD', 'XRPUSD']:
+                                position_stop_loss *= 100000
+                            total_stop_losses += position_stop_loss
+                risk_budget_left = account.balance + capital_park_in_bank \
+                                   - total_stop_losses - weekly_risk_floor
+                trade_size_text = '\nBudget:  ' + f'{risk_budget_left:.2f}' + '\n'
 
             # use special code to clear screen not slower OS I/O
             print('\033[H\033[J[Risk 13 - ' + trade_symbol_text + ']' + \
