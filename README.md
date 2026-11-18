@@ -34,6 +34,7 @@ You can see source code for the risk engine at [risk_engine.py](https://github.c
 |outside capital|allow risk calculations where not all capital is in MT5 account|
 |equity curve|log intraday equity for live viewing of trading or EOD review|
 |swing trading|swing trading mode where only weekly risk limit is imposed|
+|swing budget|show risk budget in swing trading mode factoring stop losses|
 |micro trading|option to trade at 1/10 size for testing and development|
 |anti-sleep|prevent laptop sleeping while running, display will dim|
 
