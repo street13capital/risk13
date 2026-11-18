@@ -23,6 +23,16 @@ import atexit
 # for testing and development of engine
 micro_trading_enabled = False
 
+# optional swing trading mode where no stops and
+# limits are imposed other than weekly risk limit
+# - cut loss at very small risk doesn't make sense
+# - not being able to add doesn't make any sense
+# - limited by daily risk limit doesn't make sense
+# - various trailing stops don't make any sense
+# - because desired setup is being able to hold
+# - weekly risk limit still applies and imposed
+swing_trading_mode = True
+
 # time-based daily risk allocation
 # trading window in UTC 24h format
 # split risk to different sessions
@@ -127,6 +137,37 @@ protective_setting = [(1.5, 0.3),
                       (2.5, 0.5),
                       (4.0, 0.25),
                       (6.5, 0.13)]
+
+# set of overrides for swing trading mode
+# see earlier for rationale of this mode
+if swing_trading_mode:
+    # cannot send order from risk engine
+    # sizes need to be decided manually
+    # stop loss and trailing stops too
+    # symbols might not be in watchlist
+    enable_keys_to_trade = False
+    display_trade_size = False
+
+    # don't block multiple trade entries
+    # this flag is irrelevant but setting
+    # here in case lead to bug in future
+    disable_adding_trades = False
+
+    # set trade risk & daily risk to weekly risk %
+    # this way, only weekly risk limit is imposed
+    trade_risk_percentage = weekly_risk_percentage
+    daily_risk_percentage = weekly_risk_percentage
+    distributed_daily_risk = False
+
+    # this is needed or trade could be cut at a
+    # fraction of the expanded weekly risk limit
+    enable_tight_cut_loss = False
+    cut_loss_multiplier = 1.0
+
+    # no automated trailing stops, set them manually
+    breakeven_stop = False
+    profit_stop = False
+    protective_stop = False
 
 # how often to check account status
 polling_period_in_sec = 0.250
