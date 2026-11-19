@@ -38,7 +38,7 @@ You can see source code for the risk engine at [risk_engine.py](https://github.c
 |swing trading|swing trading mode where only weekly risk limit is imposed|
 |swing budget|show risk budget in swing trading, factoring stop losses|
 |micro trading|option to trade at 1/10 size for testing and development|
-|anti-sleep|prevent laptop sleeping while running, display will dim|
+|anti-sleep|prevent laptop sleeping while running, display will go off|
 
 ### Sample output of risk engine
 
