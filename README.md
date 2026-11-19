@@ -25,7 +25,7 @@ You can see source code for the risk engine at [risk_engine.py](https://github.c
 |Order Management|Description|
 |:---------------|:----------|
 |watchlist support|define trade symbols with their lot size and stop loss points|
-|symbols defined|already defined with parameters BTCUSD, EURUSD, XAUUSD, USTEC|
+|default symbols|parameters already defined BTCUSD, EURUSD, XAUUSD, USTEC|
 |order shortcuts|send buy, close, sell auto-sized orders with 'b', 'n', 'm' keys|
 |unwind shortcut|unwind least profitable position top of trade stack with 'h' key|
 |flatten shortcut|emergency flattening of all positions with 'x' key (be careful)|
