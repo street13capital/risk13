@@ -29,7 +29,7 @@ micro_trading_enabled = False
 # - not being able to add doesn't make any sense
 # - limited by daily risk limit doesn't make sense
 # - various trailing stops don't make any sense
-# - because desired setup is being able to hold
+# - desired setup is being able to hold overnight
 # - weekly risk limit still applies and imposed
 swing_trading_mode = False
 

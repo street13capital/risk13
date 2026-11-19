@@ -88,8 +88,11 @@ def stream_live_equity_dashboard(csv_path="equity_curve.txt", timeout_minutes=1)
                     ax1.yaxis.set_major_formatter(mtick.PercentFormatter(xmax=100.0, decimals=2))
                     ax2.yaxis.set_major_formatter(mtick.PercentFormatter(xmax=100.0, decimals=2))
                     
-                    ax2.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M'))
-                    ax2.xaxis.set_major_locator(mdates.AutoDateLocator())
+                    # don't label x axis, will show 00:00 over many days of curve
+                    # ax2.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M'))
+                    # ax2.xaxis.set_major_formatter(mdates.DateFormatter("%b %d"))
+                    # ax2.xaxis.set_major_locator(mdates.AutoDateLocator())
+                    ax2.get_xaxis().set_visible(False)
                     fig.autofmt_xdate()
                     
                     # Force background data re-rendering without changing desktop priority
