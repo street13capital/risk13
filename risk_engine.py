@@ -31,7 +31,7 @@ micro_trading_enabled = False
 # - various trailing stops don't make any sense
 # - because desired setup is being able to hold
 # - weekly risk limit still applies and imposed
-swing_trading_mode = True
+swing_trading_mode = False
 
 # time-based daily risk allocation
 # trading window in UTC 24h format
