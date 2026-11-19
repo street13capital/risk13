@@ -43,9 +43,9 @@ You can see source code for the risk engine at [risk_engine.py](https://github.c
 
 ```
 [Risk 13 - EURUSD]
-Maximum: 12340.56
-Current: 11770.42
-Equity:  11680.11
+Maximum: 12346.56
+Current: 11776.42
+Equity:  11686.11
 P&L:     -90.31
 Size:    3.0
 ```
