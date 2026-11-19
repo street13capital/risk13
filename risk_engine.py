@@ -58,7 +58,7 @@ resize_terminal_window = True
 capital_park_in_bank = 0
 
 # disable adding of trades to cap risk
-disable_adding_trades = True
+disable_adding_trades = False
 
 # cut at fraction of trade risk instead
 # as price hit -0.382R before +0.382R
@@ -193,6 +193,7 @@ force_refresh_msg = ''
 def flatten_all_positions(symbol=None):
     # uncomment return for development during trading
     # so that engine will not wrongly close positions
+    # print('[FLATTENING POSITIONS]')
     # return
 
     positions = mt5.positions_get(symbol)
