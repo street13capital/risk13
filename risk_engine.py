@@ -25,11 +25,13 @@ micro_trading_enabled = False
 
 # optional swing trading mode where no stops and
 # limits are imposed other than weekly risk limit
+# the trader has to do everything else manually
 # - cut loss at very small risk doesn't make sense
 # - not being able to add doesn't make any sense
 # - limited by daily risk limit doesn't make sense
 # - various trailing stops don't make any sense
 # - desired setup is being able to hold overnight
+# - and concentrate weekly risk on taking entries
 # - weekly risk limit still applies and imposed
 swing_trading_mode = False
 
@@ -44,6 +46,8 @@ total_trading_sessions = 3
 # enable keys to long, short, close trades
 # b = buy (long), n = close, m = sell (short)
 # x = emergency flatten and close all positions
+# h = unwind least profitable position of stack
+# (useful for exit when adding to winning trades)
 # edit watchlist_symbols and selected_trade_symbol
 # in the later section below to set what to trade
 enable_keys_to_trade = True
@@ -556,6 +560,40 @@ try:
                 elif key_pressed == 'n':
                     flatten_all_positions(default_trade_symbol)
                     print('[CLOSE ORDER SENT]')
+                elif key_pressed == 'h':
+                    positions = mt5.positions_get(default_trade_symbol)
+                    if positions is None or len(positions) == 0:
+                        pass
+                    else:
+                        least_profitable_profit = None
+                        least_profitable_position = None
+                        for pos in positions:
+                            if least_profitable_position is None:
+                                least_profitable_profit = pos.profit
+                                least_profitable_position = pos
+                            elif pos.profit < least_profitable_profit:
+                                least_profitable_profit = pos.profit
+                                least_profitable_position = pos
+                        if least_profitable_position.type == mt5.POSITION_TYPE_BUY:
+                            trade_type = mt5.ORDER_TYPE_SELL
+                            price = mt5.symbol_info_tick(least_profitable_position.symbol).bid
+                        else:
+                            trade_type = mt5.ORDER_TYPE_BUY
+                            price = mt5.symbol_info_tick(least_profitable_position.symbol).ask
+                        close_payload = {
+                            'action': mt5.TRADE_ACTION_DEAL,
+                            'symbol': least_profitable_position.symbol,
+                            'volume': least_profitable_position.volume,
+                            'type': trade_type,
+                            'position': least_profitable_position.ticket,
+                            'price': price,
+                            'deviation': 30,
+                            'magic': 999999,
+                            'type_time': mt5.ORDER_TIME_GTC,
+                            'type_filling': mt5.ORDER_FILLING_IOC,
+                        }
+                        result = mt5.order_send(close_payload)
+                    print('[UNWIND ORDER SENT]')
                 elif key_pressed == 'b':
                     positions = mt5.positions_get(default_trade_symbol)
                     if disable_adding_trades and not (positions is None or len(positions) == 0):
