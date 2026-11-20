@@ -130,7 +130,7 @@ breakeven_setting = 0.382
 # after hitting before locking in profits.
 # if 1.0 too easily triggered with 1 tick.
 profit_stop = True
-profit_stop_percentage = 0.786
+profit_stop_percentage = 0.618
 profit_setting = [0.618, 0.81, 1.0, 1.25]
 
 # if price moved +2.5R, exit positions when
