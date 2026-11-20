@@ -33,7 +33,7 @@ micro_trading_enabled = False
 # - desired setup is being able to hold overnight
 # - and concentrate weekly risk on taking entries
 # - weekly risk limit still applies and imposed
-swing_trading_mode = False
+swing_trading_mode = True
 
 # time-based daily risk allocation
 # trading window in UTC 24h format
@@ -67,7 +67,7 @@ disable_adding_trades = False
 # cut at fraction of trade risk instead
 # as price hit -0.382R before +0.382R
 # so it might mean the bias is wrong
-enable_tight_cut_loss = True
+enable_tight_cut_loss = False
 if enable_tight_cut_loss:
     cut_loss_multiplier = 0.382
 else: 
