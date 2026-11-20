@@ -23,7 +23,7 @@ import atexit
 # for testing and development of engine
 micro_trading_enabled = False
 
-# optional swing trading mode where no stops and
+# swing (or rogue) trading mode where no stops and
 # limits are imposed other than weekly risk limit
 # the trader has to do everything else manually
 # - cut loss at very small risk doesn't make sense
@@ -33,7 +33,7 @@ micro_trading_enabled = False
 # - desired setup is being able to hold overnight
 # - and concentrate weekly risk on taking entries
 # - weekly risk limit still applies and imposed
-swing_trading_mode = True
+swing_trading_mode = False
 
 # time-based daily risk allocation
 # trading window in UTC 24h format
