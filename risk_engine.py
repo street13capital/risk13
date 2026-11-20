@@ -40,7 +40,7 @@ swing_trading_mode = False
 # split risk to different sessions
 distributed_daily_risk = True
 trading_start_utc_time = '0000'
-trading_end_utc_time = '1800'
+trading_end_utc_time = '1500'
 total_trading_sessions = 3
 
 # enable keys to long, short, close trades
@@ -636,7 +636,9 @@ except KeyboardInterrupt:
 
 finally:
     # 10) terminate engine process by sending shutdown to MT5
-    # resize back terminal window if needed to original size
+    # clear screen and resize back terminal window if needed
+    sys.stdout.write("\033[H\033[2J\033[3J")
+    sys.stdout.flush()
     if resize_terminal_window:
         sys.stdout.write(f'\x1b[8;{original_term_size.lines};{original_term_size.columns}t')
         sys.stdout.flush()        
