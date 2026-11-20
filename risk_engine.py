@@ -40,7 +40,7 @@ swing_trading_mode = False
 # split risk to different sessions
 distributed_daily_risk = True
 trading_start_utc_time = '0000'
-trading_end_utc_time = '1500'
+trading_end_utc_time = '1800'
 total_trading_sessions = 3
 
 # enable keys to long, short, close trades
