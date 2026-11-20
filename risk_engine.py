@@ -39,8 +39,8 @@ swing_trading_mode = False
 # trading window in UTC 24h format
 # split risk to different sessions
 distributed_daily_risk = True
-trading_start_utc_time = '0700'
-trading_end_utc_time = '1900'
+trading_start_utc_time = '0000'
+trading_end_utc_time = '1800'
 total_trading_sessions = 3
 
 # enable keys to long, short, close trades
@@ -92,7 +92,8 @@ display_trade_size = True
 # pip for forex pairs, points for others
 watchlist_symbols = [('EURUSD', 0.000222, 4.5),
                      ('BTCUSD', 0.000040, 250),
-                     ('USTEC',  0.000080, 125)]
+                     ('USTEC',  0.000080, 125),
+                     ('XAUUSD', 0.0000125, 8.0)]
 
 # set selected symbol from above watchlist
 # 0 is the first one, 1 is second one etc
@@ -107,6 +108,9 @@ trade_size_constant = watchlist_symbols[selected_trade_symbol][1]
 default_stop_loss_pips = watchlist_symbols[selected_trade_symbol][2]
 if micro_trading_enabled:
     trade_size_constant /= 10
+
+# define major forex pairs for stop loss calculation
+FOREX_PAIRS = ['EURUSD', 'USDJPY', 'GBPUSD', 'USDCHF', 'AUDUSD', 'USDCAD', 'NZDUSD']  
 
 # stops to limit loss and protect profit
 
@@ -245,8 +249,7 @@ def open_new_trade(symbol, direction, lot_size, comment='', sl_pips=None, tp_pip
     # assume major forex pairs with USD
     # pip calculation vs cent for others
     # can add on here for minors later
-    # exclude major crypto, false positive
-    if 'USD' in symbol and symbol not in ['BTCUSD', 'ETHUSD', 'SOLUSD', 'ADAUSD', 'XRPUSD']:
+    if symbol in FOREX_PAIRS:
         pip = symbol_info.point * 10
     else:
         pip = symbol_info.point * 100
@@ -443,9 +446,8 @@ try:
                         else:
                             position_stop_loss = abs(pos.price_open - pos.sl) * pos.volume
                             # special handling for forex symbols because 1 lot = 100000
-                            # check for major forex pairs with USD, exclude major crypto
-                            if 'USD' in pos.symbol and pos.symbol not in \
-                            ['BTCUSD', 'ETHUSD', 'SOLUSD', 'ADAUSD', 'XRPUSD']:
+                            # check for major forex pairs with USD, can add minors later
+                            if pos.symbol in FOREX_PAIRS:
                                 position_stop_loss *= 100000
                             total_stop_losses += position_stop_loss
                 risk_budget_left = account.balance + capital_park_in_bank \
@@ -549,8 +551,7 @@ try:
             if key_ready:
                 key_pressed = sys.stdin.read(1).lower()
                 if default_trade_symbol != 'USTEC':
-                    lot_size = float(Decimal(str(next_trade_size)).quantize(Decimal('0.01'), \
-                        rounding=ROUND_DOWN))
+                    lot_size = float(Decimal(str(next_trade_size)).quantize(Decimal('0.01')))
                 else:
                     lot_size = float(Decimal(str(next_trade_size)).quantize(Decimal('0.1')))
 
