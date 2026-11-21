@@ -62,12 +62,12 @@ resize_terminal_window = True
 capital_park_in_bank = 0
 
 # disable adding of trades to cap risk
-disable_adding_trades = False
+disable_adding_trades = True
 
 # cut at fraction of trade risk instead
 # as price hit -0.382R before +0.382R
 # so it might mean the bias is wrong
-enable_tight_cut_loss = False
+enable_tight_cut_loss = True
 if enable_tight_cut_loss:
     cut_loss_multiplier = 0.382
 else: 
@@ -137,8 +137,7 @@ profit_setting = [0.618, 0.81, 1.0, 1.25]
 # price retraces 0.5R from the peak profit.
 # similarly +4.0R and +6.5R to lock profits,
 # trailing even tighter with 0.25R and 0.13R.
-# also started trailing at +1.5R to lock profits
-# because that is already 4.85x of tight cutloss.
+# started trailing at +1.5R to lock profits.
 protective_stop = True
 protective_setting = [(1.5, 0.3),
                       (2.0, 0.4),
