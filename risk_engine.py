@@ -560,6 +560,19 @@ try:
                 elif key_pressed == 'n':
                     flatten_all_positions(default_trade_symbol)
                     print('[CLOSE ORDER SENT]')
+                elif key_pressed == 'j':
+                    positions = mt5.positions_get(default_trade_symbol)
+                    if positions is None or len(positions) == 0:
+                        print('[NOTHING TO FLIP]')
+                    else:
+                        flatten_all_positions(default_trade_symbol)
+                        if positions[0].type == mt5.POSITION_TYPE_BUY:
+                            trade_direction = 'SELL'
+                        else:
+                            trade_direction = 'BUY'
+                        open_new_trade(default_trade_symbol, trade_direction, lot_size, \
+                            sl_pips=default_stop_loss_pips)
+                        print('[FLIP ORDER SENT]')
                 elif key_pressed == 'h':
                     positions = mt5.positions_get(default_trade_symbol)
                     if positions is None or len(positions) == 0:
