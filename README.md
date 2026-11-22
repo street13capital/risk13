@@ -9,7 +9,7 @@ You can see source code for the risk engine at [risk_engine.py](https://github.c
 |Risk Management|Description|
 |:--------------|:----------|
 |automated cut loss |cut open positions if unrealised loss exceeds trade risk limit|
-|distributed daily risk|optional allocation spread over different trading sessions in the day|
+|distributed daily risk|optional risk spread over different trading sessions in the day|
 |trailing daily risk|close positions if exceed daily risk limit marked to peak balance|
 |trailing weekly risk|close positions if exceed weekly risk limit marked to peak balance|
 |tighter cut loss|optional setting to cut at 38.2% of trade risk instead of full risk|
