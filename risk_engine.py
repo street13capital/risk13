@@ -67,7 +67,7 @@ disable_adding_trades = True
 # cut at fraction of trade risk instead
 # as price hit -0.382R before +0.382R
 # so it might mean the bias is wrong
-enable_tight_cut_loss = True
+enable_tight_cut_loss = False
 if enable_tight_cut_loss:
     cut_loss_multiplier = 0.382
 else: 
@@ -75,8 +75,8 @@ else:
 
 # risk limits to flatten positions
 trade_risk_percentage = 0.010
-daily_risk_percentage = 0.063
-weekly_risk_percentage = 0.18
+daily_risk_percentage = 0.080
+weekly_risk_percentage = 0.24
 if micro_trading_enabled:
     trade_risk_percentage /= 10
     daily_risk_percentage /= 10
