@@ -23,37 +23,26 @@ import atexit
 # for testing and development of engine
 micro_trading_enabled = False
 
-# swing (or rogue) trading mode where no stops and
-# limits are imposed other than weekly risk limit
-# the trader has to do everything else manually
-# - cut loss at very small risk doesn't make sense
-# - not being able to add doesn't make any sense
-# - limited by daily risk limit doesn't make sense
-# - various trailing stops don't make any sense
-# - desired setup is being able to hold overnight
-# - and concentrate weekly risk on taking entries
-# - weekly risk limit still applies and imposed
-swing_trading_mode = False
-
 # time-based daily risk allocation
 # trading window in UTC 24h format
 # split risk to different sessions
-distributed_daily_risk = True
+distributed_daily_risk = False
 trading_start_utc_time = '0000'
 trading_end_utc_time = '1600'
 total_trading_sessions = 3
+
+# reduce terminal size to fit output
+resize_terminal_window = True
 
 # enable keys to long, short, close trades
 # b = buy (long), n = close, m = sell (short)
 # x = emergency flatten and close all positions
 # h = unwind least profitable position of stack
+# j = reverse trade direction with risk sizing
 # (useful for exit when adding to winning trades)
 # edit watchlist_symbols and selected_trade_symbol
 # in the later section below to set what to trade
 enable_keys_to_trade = True
-
-# reduce terminal size to fit output
-resize_terminal_window = True
 
 # trading capital outside brokerage account
 # modify risk_engine.txt last field directly
@@ -142,8 +131,19 @@ protective_setting = [(1.5, 0.5),
                       (4.0, 0.25),
                       (6.5, 0.13)]
 
+# swing (or rogue) trading mode where no stops and
+# limits are imposed other than weekly risk limit
+# the trader has to do everything else manually
+# - cut loss at very small risk doesn't make sense
+# - not being able to add doesn't make any sense
+# - limited by daily risk limit doesn't make sense
+# - various trailing stops don't make any sense
+# - desired setup is being able to hold overnight
+# - and concentrate weekly risk on taking entries
+# - weekly risk limit still applies and imposed
+swing_trading_mode = False
+
 # set of overrides for swing trading mode
-# see earlier for rationale of this mode
 if swing_trading_mode:
     # cannot send order from risk engine
     # sizes need to be decided manually
