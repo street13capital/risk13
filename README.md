@@ -19,7 +19,7 @@ You can see source code for the risk engine at [risk_engine.py](https://github.c
 |:---------------|:----------|
 |breakeven stop|get out of trades if they hit +0.382R and return to breakeven|
 |profit target stops|lock profits if reverse below +0.618R, +0.786R, +1.0R, +1.25R|
-|protective stops|tighten stop from +1.5R, tighten more at +2.5R, +4.0R, +6.5R|
+|protective stops|tighten stop at +1.5R, tighten even more +4.0R and +6.5R|
 |multiple positions|stops and risk limits work for multiple concurrent symbols|
 
 |Order Management|Description|
