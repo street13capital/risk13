@@ -131,7 +131,7 @@ breakeven_setting = 0.382
 # if 1.0 too easily triggered with 1 tick.
 profit_stop = True
 profit_stop_percentage = 0.618
-profit_setting = [0.618, 0.81, 1.0, 1.25]
+profit_setting = [0.618, 0.786, 1.0, 1.25]
 
 # if price moved +2.5R, exit positions when
 # price retraces 0.5R from the peak profit.
@@ -177,7 +177,7 @@ if swing_trading_mode:
     protective_stop = False
 
 # how often to check account status
-polling_period_in_sec = 0.250
+polling_period_in_sec = 0.125
 
 # data file to store capital peaks
 risk_data_file = 'risk_engine.txt'
