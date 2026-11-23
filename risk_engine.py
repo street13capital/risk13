@@ -39,6 +39,7 @@ resize_terminal_window = True
 # x = emergency flatten and close all positions
 # h = unwind least profitable position of stack
 # j = reverse trade direction with risk sizing
+# ,./ = set cut loss to 25% 50% 100% trade risk
 # (useful for exit when adding to winning trades)
 # edit watchlist_symbols and selected_trade_symbol
 # in the later section below to set what to trade
@@ -634,6 +635,15 @@ try:
                         force_subloop_refresh = True
                     else:
                         print('[SYMBOL UNDEFINED]')
+                elif key_pressed == ',':
+                    cut_loss_multiplier = 0.25
+                    print('[25% CUTLOSS SET]')
+                elif key_pressed == '.':
+                    cut_loss_multiplier = 0.50
+                    print('[50% CUTLOSS SET]')
+                elif key_pressed == '/':
+                    cut_loss_multiplier = 1.00
+                    print('[100% CUTLOSS SET]')
 
         else: 
             # delay anyway avoid useless computation cycles
