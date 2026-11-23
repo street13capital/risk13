@@ -418,6 +418,10 @@ try:
                 next_trade_size = 0
             elif available_risk_capital < trade_risk_capital:
                 next_trade_size = next_trade_size * available_risk_capital / trade_risk_capital
+            if default_trade_symbol != 'USTEC':
+                next_trade_size = float(Decimal(str(next_trade_size)).quantize(Decimal('0.01')))
+            else:
+                next_trade_size = float(Decimal(str(next_trade_size)).quantize(Decimal('0.1')))
             if display_trade_size:
                 trade_size_text = '\nSize:    ' + f'{Decimal(f'{next_trade_size:.2g}'):f}' + '\n'
             else:
@@ -547,10 +551,7 @@ try:
             key_ready, _, _ = select.select([sys.stdin], [], [], polling_period_in_sec)
             if key_ready:
                 key_pressed = sys.stdin.read(1).lower()
-                if default_trade_symbol != 'USTEC':
-                    lot_size = float(Decimal(str(next_trade_size)).quantize(Decimal('0.01')))
-                else:
-                    lot_size = float(Decimal(str(next_trade_size)).quantize(Decimal('0.1')))
+                lot_size = next_trade_size 
 
                 if key_pressed == 'x':
                     flatten_all_positions()
