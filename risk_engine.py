@@ -564,6 +564,8 @@ try:
                         print('[NOTHING TO FLIP]')
                     else:
                         flatten_all_positions(default_trade_symbol)
+                        # reset or new position can close right away
+                        trade_peak_profit[selected_trade_symbol] = 0
                         if positions[0].type == mt5.POSITION_TYPE_BUY:
                             trade_direction = 'SELL'
                         else:
