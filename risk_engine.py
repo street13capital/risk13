@@ -569,7 +569,7 @@ try:
                         else:
                             trade_direction = 'BUY'
                         open_new_trade(default_trade_symbol, trade_direction, lot_size, \
-                            sl_pips=default_stop_loss_pips)
+                            sl_pips=default_stop_loss_pips * cut_loss_multiplier)
                         print('[FLIP ORDER SENT]')
                 elif key_pressed == 'h':
                     positions = mt5.positions_get(default_trade_symbol)
@@ -611,7 +611,7 @@ try:
                         print('[NO ADDING TRADES]')
                     else:
                         open_new_trade(default_trade_symbol, 'BUY', lot_size, \
-                            sl_pips=default_stop_loss_pips)
+                            sl_pips=default_stop_loss_pips * cut_loss_multiplier)
                         print('[BUY ORDER SENT]')
                 elif key_pressed == 'm':
                     positions = mt5.positions_get(default_trade_symbol)
@@ -619,7 +619,7 @@ try:
                         print('[NO ADDING TRADES]')
                     else:
                         open_new_trade(default_trade_symbol, 'SELL', lot_size, \
-                            sl_pips=default_stop_loss_pips)
+                            sl_pips=default_stop_loss_pips * cut_loss_multiplier)
                         print('[SELL ORDER SENT]')
                 elif key_pressed.isdigit():
                     if len(watchlist_symbols) > int(key_pressed):
