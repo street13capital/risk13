@@ -74,7 +74,7 @@ if micro_trading_enabled:
     weekly_risk_percentage /= 10
 
 # show trade size factoring risk limit
-display_trade_size = True
+display_trade_size = False
 
 # define symbols with their parameters
 # - lot size ratio relative to capital
