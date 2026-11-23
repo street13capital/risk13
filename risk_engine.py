@@ -38,9 +38,10 @@ resize_terminal_window = True
 # b = buy (long), n = close, m = sell (short)
 # x = emergency flatten and close all positions
 # h = unwind least profitable position of stack
+# (useful for exit when adding to winning trades)
 # j = reverse trade direction with risk sizing
 # ,./ = set cut loss to 25% 50% 100% trade risk
-# (useful for exit when adding to winning trades)
+# k = toggle profit and protective stops on/off
 # edit watchlist_symbols and selected_trade_symbol
 # in the later section below to set what to trade
 enable_keys_to_trade = True
@@ -647,6 +648,15 @@ try:
                 elif key_pressed == '/':
                     cut_loss_multiplier = 1.00
                     print('[100% CUTLOSS SET]')
+                elif key_pressed == 'k':
+                    if protective_stop or profit_stop:
+                        protective_stop = False
+                        profit_stop = False
+                        print('[TRAILING STOPS OFF]')
+                    else:
+                        protective_stop = True
+                        profit_stop = True
+                        print('[TRAILING STOPS ON]')
 
         else: 
             # delay anyway avoid useless computation cycles
