@@ -27,6 +27,7 @@ You can see source code for the risk engine at [risk_engine.py](https://github.c
 |watchlist support|define trade symbols with their lot size and stop loss points|
 |default symbols|parameters defined for BTCUSD, EURUSD, XAUUSD, USTEC|
 |order shortcuts|send buy, close, sell auto-sized orders with 'b', 'n', 'm' keys|
+|cut % shortcut|set cut loss to 25%, 50%, 100% of trade risk with ',./' keys|
 |flip shortcut|reverse trade direction using the default risk sizing with 'j' key|
 |unwind shortcut|unwind least profitable position top of trade stack with 'h' key|
 |flatten shortcut|emergency flattening of all positions with 'x' key (be careful)|
