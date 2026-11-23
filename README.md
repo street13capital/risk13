@@ -58,7 +58,7 @@ Size:    3.0
 
 
 ### Additional notes
-I do not want to use a VPS or some API service to do it. I just want to run it locally on my macOS laptop. IMPORTANT - every trader is different. To use a risk engine effectively, the trader needs to enable features that he wants and set parameters that work for him. The engine can be adapted to work with other brokerages or Windows.
+I do not want to use a VPS or some API service to implement the risk engine. I just want to run it locally on my macOS laptop. IMPORTANT - every trader is different. To use a risk engine effectively, the trader needs to enable features that he wants and set parameters that work for him. The engine can be adapted to work with other brokerages or Windows.
 
 ### Sample of mt5-mac package
 
