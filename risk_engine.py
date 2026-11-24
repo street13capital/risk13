@@ -76,8 +76,12 @@ if micro_trading_enabled:
 # show trade size factoring risk limit
 display_trade_size = False
 
-# show maximum balance for the day
+# show maximum balance for today
+# show current account balance
+# show current account equity
 display_max_balance = False
+display_balance = False
+display_equity = False
 
 # define symbols with their parameters
 # - lot size ratio relative to capital
@@ -467,12 +471,20 @@ try:
                 max_balance_text = '\nMaximum: ' + f'{daily_peak_balance:.2f}'
             else:
                 max_balance_text = ''
-
+            if display_balance:
+                balance_text = '\nCurrent: ' + f'{account.balance + capital_park_in_bank:.2f}'
+            else:
+                balance_text = ''
+            if display_equity:
+                equity_text = '\nEquity:  ' + f'{account.equity + capital_park_in_bank:.2f}' 
+            else:
+                equity_text = ''
+            pnl_text = '\nP&L:     ' + f'{account.profit:.2f}'
+            
             # use special code to clear screen not slower OS I/O
-            print('\033[H\033[J[Risk 13 - ' + trade_symbol_text + ']', max_balance_text, \
-                '\nCurrent:', f'{account.balance + capital_park_in_bank:.2f}',
-                '\nEquity: ', f'{account.equity + capital_park_in_bank:.2f}',
-                '\nP&L:    ', f'{account.profit:.2f}', trade_size_text, force_refresh_msg)
+            print('\033[H\033[J[Risk 13 - ' + trade_symbol_text + ']', \
+                max_balance_text, balance_text, equity_text, \
+                pnl_text, trade_size_text, force_refresh_msg)
             force_refresh_msg = ''
 
             if log_intraday_equity:
