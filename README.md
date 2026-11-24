@@ -36,7 +36,7 @@ This repo is an intraday risk engine to assist with risk management for my discr
 |:-------------|:----------|
 |outside capital|allow risk calculations where not all capital is in MT5 account|
 |equity curve|log intraday equity for live viewing of trading or EOD review|
-|hide status|option to hide max balance, current balance and equity for focus|
+|hide balance|option to hide max balance, balance and equity now for focus|
 |swing trading|swing trading mode where only weekly risk limit is imposed|
 |swing budget|show risk budget in swing trading, factoring stop losses|
 |micro trading|option to trade at 1/10 size for testing and development|
