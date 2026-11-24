@@ -485,7 +485,7 @@ try:
             pnl_text = '\nP&L:     ' + f'{account.profit:.2f}'
             
             # use special code to clear screen not slower OS I/O
-            print('\033[H\033[J[Risk 13 - ' + trade_symbol_text + ']', \
+            print('\033[H\033[J[Risk 13 x ' + trade_symbol_text + ']', \
                 max_balance_text, balance_text, equity_text, \
                 pnl_text, trade_size_text, force_refresh_msg)
             force_refresh_msg = ''
