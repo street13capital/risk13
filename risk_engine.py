@@ -76,6 +76,9 @@ if micro_trading_enabled:
 # show trade size factoring risk limit
 display_trade_size = False
 
+# show maximum balance for the day
+display_max_balance = False
+
 # define symbols with their parameters
 # - lot size ratio relative to capital
 # - point for stop loss at trade risk
@@ -456,9 +459,13 @@ try:
                                    - total_stop_losses - weekly_risk_floor
                 trade_size_text = '\nBudget:  ' + f'{risk_budget_left:.2f}' + '\n'
 
+            if display_max_balance:
+                max_balance_text = '\nMaximum: ' + f'{daily_peak_balance:.2f}'
+            else:
+                max_balance_text = ''
+
             # use special code to clear screen not slower OS I/O
-            print('\033[H\033[J[Risk 13 - ' + trade_symbol_text + ']' + \
-                '\nMaximum:', f'{daily_peak_balance:.2f}',
+            print('\033[H\033[J[Risk 13 - ' + trade_symbol_text + ']', max_balance_text, \
                 '\nCurrent:', f'{account.balance + capital_park_in_bank:.2f}',
                 '\nEquity: ', f'{account.equity + capital_park_in_bank:.2f}',
                 '\nP&L:    ', f'{account.profit:.2f}', trade_size_text, force_refresh_msg)
