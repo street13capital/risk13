@@ -297,10 +297,13 @@ mt5.login(mt5_login, mt5_password, mt5_server)
 os.system('cls' if os.name == 'nt' else 'clear')
 # optimally reduce terminal size to show status
 if resize_terminal_window:
+    terminal_rows = 5
     if display_max_balance:
-        terminal_rows = 8
-    else:
-        terminal_rows = 7
+        terminal_rows += 1
+    if display_balance:
+        terminal_rows += 1
+    if display_equity:
+        terminal_rows += 1
     original_term_size = os.get_terminal_size()
     sys.stdout.write(f'\x1b[8;{terminal_rows};{25}t')
     sys.stdout.flush()
