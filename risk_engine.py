@@ -298,7 +298,7 @@ if resize_terminal_window:
     else:
         terminal_rows = 7
     original_term_size = os.get_terminal_size()
-    sys.stdout.write(f'\x1b[8;{terminal_rows};{27}t')
+    sys.stdout.write(f'\x1b[8;{terminal_rows};{25}t')
     sys.stdout.flush()
 
 # below accept key inputs without enter
