@@ -45,7 +45,7 @@ This repo is an intraday risk engine to assist with risk management for my discr
 ### Sample output of risk engine
 
 ```
-[Risk 13 - EURUSD]
+[Risk 13 x EURUSD]
 Maximum: 12346.56
 Current: 11776.42
 Equity:  11686.11
