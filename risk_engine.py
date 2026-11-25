@@ -7,6 +7,7 @@ import csv
 import math
 from datetime import datetime, timezone
 from decimal import Decimal, ROUND_DOWN
+from indicators import FastEMAEngine
 import time
 import sys
 import subprocess
@@ -373,23 +374,17 @@ if display_equity_curve:
         start_new_session=True
     )
 
+# initialise EMAs calculation engine before entering loop
+ema_engine = FastEMAEngine(default_trade_symbol, mt5.TIMEFRAME_M5, tf_seconds=300)
+last_emas_checked_bucket = -1
+
 # 3) risk engine loop based on polling_period_in_sec
 try:
     while True:
         # get latest account figures at every cycle
         account = mt5.account_info()
 
-        # 4) update daily peak balance and store it
-        # then calculate daily and weekly risk floors
-        if (account.balance + capital_park_in_bank) > daily_peak_balance:
-            daily_peak_balance = account.balance + capital_park_in_bank
-            if daily_peak_balance > weekly_peak_balance:
-                weekly_peak_balance = daily_peak_balance
-            with open(risk_data_file, 'w') as f:
-                f.write(f'{current_date},{daily_peak_balance:.2f},'
-                    f'{weekly_peak_balance:.2f},{capital_park_in_bank:.2f}')
-
-        # 5) only print periodically to reduce cpu usage
+        # 4) only print periodically to reduce cpu usage
         # if enabled, log intraday equity periodically
         current_time = time.monotonic()
         if ((current_time - last_printout_time) >= 30) or force_subloop_refresh:
@@ -400,10 +395,21 @@ try:
             # print risk notice once per print cycle
             risk_exceeded_printed = False
 
+            # 5) update daily peak balance and store it
+            # then calculate daily and weekly risk floors
+            # do this within 30-sec loop to save CPU and I/O
+            if (account.balance + capital_park_in_bank) > daily_peak_balance:
+                daily_peak_balance = account.balance + capital_park_in_bank
+                if daily_peak_balance > weekly_peak_balance:
+                    weekly_peak_balance = daily_peak_balance
+                with open(risk_data_file, 'w') as f:
+                    f.write(f'{current_date},{daily_peak_balance:.2f},'
+                        f'{weekly_peak_balance:.2f},{capital_park_in_bank:.2f}')
+
             # risk floor calculation can skip main loop and do every 30 seconds
             # possible that within 30 seconds a big move happened and reversed
             # but that would be caught by the trade risk and different stops
-            # without the new daily risk floor triggered for this edge case
+            # without the new daily risk floor being used for this edge case
             if not distributed_daily_risk:
                 daily_risk_floor = (1 - daily_risk_percentage) * daily_peak_balance
                 weekly_risk_floor = (1 - weekly_risk_percentage) * weekly_peak_balance
@@ -498,7 +504,16 @@ try:
                         round(account.equity + capital_park_in_bank, 2)
                     ])
 
-        # 6) check if trades exceeded trades risk limit
+            # 6) calculate EMAs values to use for trend classification
+            tick = mt5.symbol_info_tick(default_trade_symbol)
+            current_emas_bucket = int(tick.time) // 300
+            if current_emas_bucket != last_emas_checked_bucket:
+                ema_data = ema_engine.update(tick.bid)
+                last_emas_checked_bucket = current_emas_bucket
+            else:
+                ema_data = ema_engine.fast_live_only(tick.bid)
+
+        # 7) check if trades exceeded trades risk limit
         # then flatten all open positions to force close
         # this effectively acts as stop loss at trade limit
         for trade_symbol in watchlist_symbols:
@@ -514,7 +529,7 @@ try:
                     flatten_all_positions(trade_symbol[0])
                     print('[TRADE RISK EXCEEDED]')
 
-        # 7) check if equity exceeded daily risk limit
+        # 8) check if equity exceeded daily risk limit
         # then flatten all open positions if there is any
         if weekly_risk_floor > daily_risk_floor:
             if (account.equity + capital_park_in_bank) < weekly_risk_floor:
@@ -532,7 +547,7 @@ try:
                 else:
                     print('[DAILY RISK EXCEEDED]')
 
-        # 8) breakeven and protective stops to limit loss and protect profit
+        # 9) breakeven and protective stops to limit loss and protect profit
         trade_risk_amount = trade_risk_percentage * daily_peak_balance
         for index, trade_symbol in enumerate(watchlist_symbols): 
             positions = mt5.positions_get(trade_symbol[0])
@@ -571,7 +586,7 @@ try:
                             print(f'[{threshold[0]}R STOP TRIGGERED]')
                             break
 
-        # 9) handle pre-defined keys to place or close trades
+        # 10) handle pre-defined keys to place or close trades
         # will wait up to polling_period_in_sec delay but
         # immediately execute on keypress detected 
         if enable_keys_to_trade:
@@ -693,7 +708,7 @@ except KeyboardInterrupt:
     pass
 
 finally:
-    # 10) terminate engine process by sending shutdown to MT5
+    # 11) terminate engine process by sending shutdown to MT5
     # clear screen and resize back terminal window if needed
     sys.stdout.write("\033[H\033[2J\033[3J")
     sys.stdout.flush()
