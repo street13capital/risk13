@@ -24,6 +24,7 @@ This repo is an intraday risk engine to assist with risk management for my discr
 |:---------------|:----------|
 |watchlist support|define trade symbols with their lot size and stop loss points|
 |default symbols|parameters defined for BTCUSD, EURUSD, XAUUSD, USTEC|
+|trend bias|show trend bias bullish, bearish, choppy for chosen timeframe|
 |order shortcuts|send buy, close, sell auto-sized orders with 'b', 'n', 'm' keys|
 |cut % shortcut|set cut loss to 25%, 50%, 100% of trade risk with ',./' keys|
 |flip shortcut|reverse trade direction using the default risk sizing with 'j' key|
