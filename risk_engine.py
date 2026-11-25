@@ -53,6 +53,9 @@ enable_keys_to_trade = True
 # to create the initial risk_engine.txt file
 capital_park_in_bank = 0
 
+# enable block against countertrend trades
+block_countertrend_trades = True
+
 # disable adding of trades to cap risk
 disable_adding_trades = True
 
@@ -644,6 +647,24 @@ try:
                     positions = mt5.positions_get(default_trade_symbol)
                     if positions is None or len(positions) == 0:
                         print('[NOTHING TO FLIP]')
+                    elif block_countertrend_trades:
+                        tick = mt5.symbol_info_tick(default_trade_symbol)
+                        ema_data = ema_engine.fast_live_only(tick.bid)
+                        current_trend_bias = get_current_trend(default_trade_symbol)
+                        if positions[0].type == mt5.POSITION_TYPE_BUY:
+                            trade_direction = 'SELL'
+                        else:
+                            trade_direction = 'BUY'
+                        if (trade_direction == 'BUY' and current_trend_bias == 'bullish') or \
+                            (trade_direction == 'SELL' and current_trend_bias == 'bearish'):
+                            flatten_all_positions(default_trade_symbol)
+                            # reset or new position can close right away
+                            trade_peak_profit[selected_trade_symbol] = 0
+                            open_new_trade(default_trade_symbol, trade_direction, lot_size, \
+                                sl_pips=default_stop_loss_pips * cut_loss_multiplier)
+                            print('[FLIP ORDER SENT]') 
+                        else:
+                            print('[FLIP AGAINST BIAS]')
                     else:
                         flatten_all_positions(default_trade_symbol)
                         # reset or new position can close right away
@@ -693,6 +714,15 @@ try:
                     positions = mt5.positions_get(default_trade_symbol)
                     if disable_adding_trades and not (positions is None or len(positions) == 0):
                         print('[NO ADDING TRADES]')
+                    elif block_countertrend_trades:
+                        tick = mt5.symbol_info_tick(default_trade_symbol)
+                        ema_data = ema_engine.fast_live_only(tick.bid)
+                        if get_current_trend(default_trade_symbol) == 'bullish':
+                            open_new_trade(default_trade_symbol, 'BUY', lot_size, \
+                                sl_pips=default_stop_loss_pips * cut_loss_multiplier)
+                            print('[BUY ORDER SENT]')
+                        else:
+                            print('[BIAS NOT BULLISH]')
                     else:
                         open_new_trade(default_trade_symbol, 'BUY', lot_size, \
                             sl_pips=default_stop_loss_pips * cut_loss_multiplier)
@@ -701,7 +731,16 @@ try:
                     positions = mt5.positions_get(default_trade_symbol)
                     if disable_adding_trades and not (positions is None or len(positions) == 0):
                         print('[NO ADDING TRADES]')
-                    else:
+                    elif block_countertrend_trades:
+                        tick = mt5.symbol_info_tick(default_trade_symbol)
+                        ema_data = ema_engine.fast_live_only(tick.bid)
+                        if get_current_trend(default_trade_symbol) == 'bearish':
+                            open_new_trade(default_trade_symbol, 'SELL', lot_size, \
+                                sl_pips=default_stop_loss_pips * cut_loss_multiplier)
+                            print('[SELL ORDER SENT]')
+                        else:
+                            print('[BIAS NOT BEARISH]')
+                    else:   
                         open_new_trade(default_trade_symbol, 'SELL', lot_size, \
                             sl_pips=default_stop_loss_pips * cut_loss_multiplier)
                         print('[SELL ORDER SENT]')
