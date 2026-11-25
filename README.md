@@ -12,6 +12,9 @@ This repo is an intraday risk engine to assist with risk management for my discr
 |trailing weekly risk|close positions if exceed weekly risk limit marked to peak balance|
 |tighter cut loss|optional setting to cut at 38.2% of trade risk instead of full risk|
 |disable adding|default setting to cap risk by not allowing adding to trades|
+|next trade size|show next trade size accounting for remaining daily risk limit|
+|swing budget|show risk budget in swing trading, factoring stop losses|
+
 
 |Trade Management|Description|
 |:---------------|:----------|
@@ -31,7 +34,6 @@ This repo is an intraday risk engine to assist with risk management for my discr
 |on/off stops|on/off profit and protective stops with 'k' key (breakeven intact)|
 |unwind shortcut|unwind least profitable position top of trade stack with 'h' key|
 |flatten shortcut|emergency flattening of all positions with 'x' key (be careful)|
-|next trade size|show next trade size accounting for remaining daily risk limit|
 
 |Other Features|Description|
 |:-------------|:----------|
@@ -39,7 +41,6 @@ This repo is an intraday risk engine to assist with risk management for my discr
 |equity curve|log intraday equity for live viewing of trading or EOD review|
 |hide balance|option to hide max balance, balance and equity now for focus|
 |swing trading|swing trading mode where only weekly risk limit is imposed|
-|swing budget|show risk budget in swing trading, factoring stop losses|
 |micro trading|option to trade at 1/10 size for testing and development|
 |anti-sleep|prevent laptop sleeping while running, display will go off|
 
