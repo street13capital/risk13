@@ -10,8 +10,9 @@ This repo is an intraday risk engine to assist with risk management for my discr
 |distributed daily risk|optional risk spread over different trading sessions in the day|
 |trailing daily risk|close positions if exceed daily risk limit marked to peak balance|
 |trailing weekly risk|close positions if exceed weekly risk limit marked to peak balance|
-|tighter cut loss|optional setting to cut at 38.2% of trade risk instead of full risk|
+|trend guard|default block opening trades against trend bias on chosen timeframe|
 |disable adding|default setting to limit risk by not allowing adding to trades|
+|tighter cut loss|optional setting to cut at 38.2% of trade risk instead of full risk|
 |next trade size|show next trade size accounting for remaining daily risk limit|
 |swing budget|show risk budget in swing trading, factoring stop losses|
 
