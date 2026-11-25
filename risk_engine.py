@@ -84,6 +84,17 @@ display_max_balance = False
 display_balance = False
 display_equity = False
 
+# show current symbol trend bias
+# based on EMAs on 5-min chart
+display_trend_bias = True
+trend_bias_timeframes = [('1-min', mt5.TIMEFRAME_M1, 60),
+                         ('5-min', mt5.TIMEFRAME_M5, 300),
+                         ('30-min', mt5.TIMEFRAME_M30, 1800)]
+
+# set selected timeframe from above list
+# 0 is the first one, 1 is the second one etc
+selected_trade_timeframe = 1
+
 # define symbols with their parameters
 # - lot size ratio relative to capital
 # - point for stop loss at trade risk
@@ -282,6 +293,24 @@ def open_new_trade(symbol, direction, lot_size, comment='', sl_pips=None, tp_pip
     }
     result = mt5.order_send(deal_request)
 
+def get_current_trend(symbol):
+    tick = mt5.symbol_info_tick(symbol)
+    if tick.bid > ema_data['ema44'] > ema_data['ema78']:
+        symbol_trend_bias = 'bullish'
+    elif tick.bid < ema_data['ema78'] < ema_data['ema44']:
+        symbol_trend_bias = 'bearish'
+    elif tick.bid < ema_data['ema44'] < ema_data['ema78']:
+        symbol_trend_bias = 'bearish'
+    elif tick.bid > ema_data['ema78'] > ema_data['ema44']:
+        symbol_trend_bias = 'bullish'
+    elif ema_data['ema78'] < tick.bid < ema_data['ema44']:
+        symbol_trend_bias = 'choppy'
+    elif ema_data['ema78'] > tick.bid > ema_data['ema44']:
+        symbol_trend_bias = 'choppy'
+    else:
+        symbol_trend_bias = 'unknown'
+    return symbol_trend_bias
+
 # 1) connect to local MT5 instance running on macOS.
 # using python keyring to securely store credentials,
 # then continue with other initialisation prepwork.
@@ -305,6 +334,8 @@ if resize_terminal_window:
         terminal_rows += 1
     if display_equity:
         terminal_rows += 1
+    if display_trend_bias:
+        terminal_rows += 1
     original_term_size = os.get_terminal_size()
     sys.stdout.write(f'\x1b[8;{terminal_rows};{25}t')
     sys.stdout.flush()
@@ -321,7 +352,7 @@ tty.setcbreak(stdin_fd)
 # below start command to not let laptop sleep
 # but allow display dim while still running
 subprocess.Popen(
-    ["caffeinate", "-i", "-w", str(os.getpid())],
+    ['caffeinate', '-i', '-w', str(os.getpid())],
     stdout=subprocess.DEVNULL,
     stderr=subprocess.DEVNULL
 )
@@ -375,7 +406,9 @@ if display_equity_curve:
     )
 
 # initialise EMAs calculation engine before entering loop
-ema_engine = FastEMAEngine(default_trade_symbol, mt5.TIMEFRAME_M5, tf_seconds=300)
+ema_engine = FastEMAEngine(default_trade_symbol,
+    trend_bias_timeframes[selected_trade_timeframe][1],
+    tf_seconds=trend_bias_timeframes[selected_trade_timeframe][2])
 last_emas_checked_bucket = -1
 
 # 3) risk engine loop based on polling_period_in_sec
@@ -476,6 +509,21 @@ try:
                                    - total_stop_losses - weekly_risk_floor
                 trade_size_text = '\nBudget:  ' + f'{risk_budget_left:.2f}' + '\n'
 
+            # 6) calculate EMAs for use in trend classification
+            tick = mt5.symbol_info_tick(default_trade_symbol)
+            current_emas_bucket = int(tick.time) // 300
+            if current_emas_bucket != last_emas_checked_bucket:
+                ema_data = ema_engine.update(tick.bid)
+                last_emas_checked_bucket = current_emas_bucket
+            else:
+                ema_data = ema_engine.fast_live_only(tick.bid)
+
+            if display_trend_bias:
+                current_trend_bias = get_current_trend(default_trade_symbol)
+                trend_bias_text = '\nBias:    ' + current_trend_bias
+                # + ' ' + str(ema_data['ema44']) + ' ' + str(ema_data['ema78'])
+            else:
+                trend_bias_text = ''
             if display_max_balance:
                 max_balance_text = '\nMaximum: ' + f'{daily_peak_balance:.2f}'
             else:
@@ -492,8 +540,8 @@ try:
             
             # use special code to clear screen not slower OS I/O
             print('\033[H\033[J[Risk 13 x ' + trade_symbol_text + ']', \
-                max_balance_text, balance_text, equity_text, \
-                pnl_text, trade_size_text, force_refresh_msg)
+                max_balance_text, balance_text, equity_text, pnl_text, \
+                trend_bias_text, trade_size_text, force_refresh_msg)
             force_refresh_msg = ''
 
             if log_intraday_equity:
@@ -503,15 +551,6 @@ try:
                         datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'), 
                         round(account.equity + capital_park_in_bank, 2)
                     ])
-
-            # 6) calculate EMAs values to use for trend classification
-            tick = mt5.symbol_info_tick(default_trade_symbol)
-            current_emas_bucket = int(tick.time) // 300
-            if current_emas_bucket != last_emas_checked_bucket:
-                ema_data = ema_engine.update(tick.bid)
-                last_emas_checked_bucket = current_emas_bucket
-            else:
-                ema_data = ema_engine.fast_live_only(tick.bid)
 
         # 7) check if trades exceeded trades risk limit
         # then flatten all open positions to force close
