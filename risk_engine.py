@@ -692,9 +692,10 @@ try:
                 positions = mt5.positions_get(default_trade_symbol)
                 if positions is None or len(positions) == 0:
                     trade_entry_signal = ema_rejection_setup(default_trade_symbol)
-                    with open('entry_signals.txt', mode='a', newline='') as f:
-                        writer = csv.writer(f)
-                        writer.writerow([(datetime.now(timezone.utc) + \
+                    if trade_entry_signal != 'WAIT':
+                        with open('entry_signals.txt', mode='a', newline='') as f:
+                            writer = csv.writer(f)
+                            writer.writerow([(datetime.now(timezone.utc) + \
                             timedelta(hours=2)).strftime('%Y-%m-%d %H:%M:%S'),trade_entry_signal])
 
         # 11) handle pre-defined keys to place or close trades
