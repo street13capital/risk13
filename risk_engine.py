@@ -340,6 +340,12 @@ def price_zone_change(symbol, boundary, direction, latest_candles):
         return False
 
 def ema_rejection_setup(symbol):
+    # - sea land sky setup
+    # - leaving sky zone
+    # - leaving land zone
+    # - entering sea zone
+    # - sea gradient ok
+
     tick = mt5.symbol_info_tick(symbol)
     ema_data = ema_engine.fast_live_only(tick.bid)
     current_trend_bias = get_current_trend(symbol)
@@ -356,11 +362,17 @@ def ema_rejection_setup(symbol):
     elif price_zone_change(symbol, 'ema44', 'ABOVE', latest_candles) \
     and (current_trend_bias == 'BULLISH'):
         return 'BUY'
+    elif price_zone_change(symbol, 'ema78', 'ABOVE', latest_candles) \
+    and (current_trend_bias == 'BULLISH'):
+        return 'BUY'
 
     elif price_zone_change(symbol, 'ema13', 'BELOW', latest_candles) \
     and (current_trend_bias == 'BEARISH'):
         return 'SELL'
     elif price_zone_change(symbol, 'ema44', 'BELOW', latest_candles) \
+    and (current_trend_bias == 'BEARISH'):
+        return 'SELL'
+    elif price_zone_change(symbol, 'ema78', 'BELOW', latest_candles) \
     and (current_trend_bias == 'BEARISH'):
         return 'SELL'
 
