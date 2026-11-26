@@ -298,21 +298,43 @@ def open_new_trade(symbol, direction, lot_size, comment='', sl_pips=None, tp_pip
 
 def get_current_trend(symbol):
     tick = mt5.symbol_info_tick(symbol)
-    if tick.bid > ema_data['ema44'] > ema_data['ema78']:
+    if (tick.bid > ema_data['ema44'] > ema_data['ema78']) and (ema_data['slope78'] > 0):
         symbol_trend_bias = 'BULLISH'
-    elif tick.bid < ema_data['ema78'] < ema_data['ema44']:
+    elif (tick.bid < ema_data['ema78'] < ema_data['ema44']) and (ema_data['slope78'] < 0):
         symbol_trend_bias = 'BEARISH'
-    elif tick.bid < ema_data['ema44'] < ema_data['ema78']:
+    elif (tick.bid < ema_data['ema44'] < ema_data['ema78']) and (ema_data['slope78'] < 0):
         symbol_trend_bias = 'BEARISH'
-    elif tick.bid > ema_data['ema78'] > ema_data['ema44']:
+    elif (tick.bid > ema_data['ema78'] > ema_data['ema44']) and (ema_data['slope78'] > 0):
         symbol_trend_bias = 'BULLISH'
     elif ema_data['ema78'] < tick.bid < ema_data['ema44']:
         symbol_trend_bias = 'CHOPPY'
     elif ema_data['ema78'] > tick.bid > ema_data['ema44']:
         symbol_trend_bias = 'CHOPPY'
     else:
-        symbol_trend_bias = 'unknown'
+        symbol_trend_bias = 'UNKNOWN'
     return symbol_trend_bias
+
+def price_zone_change(symbol):
+    latest_candles = mt5.copy_rates_from_pos(symbol, \
+        trend_bias_timeframes[selected_trade_timeframe][1], 0, 3)
+    if latest_candles is not None and len(latest_candles) == 3:
+        if latest_candles[0][0] > latest_candles[-1][0]:
+            latest_candles = latest_candles[::-1]
+
+def ema_rejection_setup(symbol):
+    tick = mt5.symbol_info_tick(symbol)
+    ema_data = ema_engine.fast_live_only(tick.bid)
+    current_trend_bias = get_current_trend(symbol)
+    if price_zone_change('ema13', 'above') and (current_trend_bias == 'BULLISH'):
+        return 'BUY'
+    elif price_zone_change('ema44', 'above') and (current_trend_bias == 'BULLISH'):
+        return 'BUY'
+    elif price_zone_change('ema13', 'below') and (current_trend_bias == 'BEARISH'):
+        return 'SELL'
+    elif price_zone_change('ema44', 'below') and (current_trend_bias == 'BEARISH'):
+        return 'SELL'
+    else:
+        return 'WAIT'
 
 # 1) connect to local MT5 instance running on macOS.
 # using python keyring to securely store credentials,
@@ -514,7 +536,8 @@ try:
 
             # 6) calculate EMAs for use in trend classification
             tick = mt5.symbol_info_tick(default_trade_symbol)
-            current_emas_bucket = int(tick.time) // 300
+            # smallest unit is 1-min candle, 60 secs suffice
+            current_emas_bucket = int(tick.time) // 60
             if current_emas_bucket != last_emas_checked_bucket:
                 ema_data = ema_engine.update(tick.bid)
                 last_emas_checked_bucket = current_emas_bucket
