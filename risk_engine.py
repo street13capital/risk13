@@ -5,7 +5,7 @@
 import os
 import csv
 import math
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from decimal import Decimal, ROUND_DOWN
 from indicators import FastEMAEngine
 import time
@@ -34,6 +34,10 @@ total_trading_sessions = 3
 
 # reduce terminal size to fit output
 resize_terminal_window = True
+
+# enable entry detection and order
+enable_auto_trade_entry_testing = True
+last_entry_checked_bucket = -1
 
 # enable keys to long, short, close trades
 # b = buy (long), n = close, m = sell (short)
@@ -96,7 +100,7 @@ trend_bias_timeframes = [('1-min', mt5.TIMEFRAME_M1, 60),
 
 # set selected timeframe from above list
 # 0 is the first one, 1 is the second one etc
-selected_trade_timeframe = 1
+selected_trade_timeframe = 0
 
 # define symbols with their parameters
 # - lot size ratio relative to capital
@@ -302,37 +306,64 @@ def get_current_trend(symbol):
         symbol_trend_bias = 'BULLISH'
     elif (tick.bid < ema_data['ema78'] < ema_data['ema44']) and (ema_data['slope78'] < 0):
         symbol_trend_bias = 'BEARISH'
+
     elif (tick.bid < ema_data['ema44'] < ema_data['ema78']) and (ema_data['slope78'] < 0):
         symbol_trend_bias = 'BEARISH'
     elif (tick.bid > ema_data['ema78'] > ema_data['ema44']) and (ema_data['slope78'] > 0):
         symbol_trend_bias = 'BULLISH'
+
     elif ema_data['ema78'] < tick.bid < ema_data['ema44']:
         symbol_trend_bias = 'CHOPPY'
     elif ema_data['ema78'] > tick.bid > ema_data['ema44']:
         symbol_trend_bias = 'CHOPPY'
+
     else:
         symbol_trend_bias = 'UNKNOWN'
     return symbol_trend_bias
 
-def price_zone_change(symbol):
+def price_zone_change(symbol, boundary, direction, latest_candles):
+    if direction == 'ABOVE':
+        if latest_candles[0].close < ema_data[boundary] \
+        and latest_candles[1].close > ema_data[boundary]:
+            return True
+        else:
+            return False
+
+    elif direction == 'BELOW':
+        if latest_candles[0].close > ema_data[boundary] \
+        and latest_candles[1].close < ema_data[boundary]:
+            return True
+        else:
+            return False
+
+    else:
+        return False
+
+def ema_rejection_setup(symbol):
+    tick = mt5.symbol_info_tick(symbol)
+    ema_data = ema_engine.fast_live_only(tick.bid)
+    current_trend_bias = get_current_trend(symbol)
+
     latest_candles = mt5.copy_rates_from_pos(symbol, \
         trend_bias_timeframes[selected_trade_timeframe][1], 0, 3)
     if latest_candles is not None and len(latest_candles) == 3:
         if latest_candles[0][0] > latest_candles[-1][0]:
             latest_candles = latest_candles[::-1]
 
-def ema_rejection_setup(symbol):
-    tick = mt5.symbol_info_tick(symbol)
-    ema_data = ema_engine.fast_live_only(tick.bid)
-    current_trend_bias = get_current_trend(symbol)
-    if price_zone_change('ema13', 'above') and (current_trend_bias == 'BULLISH'):
+    if price_zone_change(symbol, 'ema13', 'ABOVE', latest_candles) \
+    and (current_trend_bias == 'BULLISH'):
         return 'BUY'
-    elif price_zone_change('ema44', 'above') and (current_trend_bias == 'BULLISH'):
+    elif price_zone_change(symbol, 'ema44', 'ABOVE', latest_candles) \
+    and (current_trend_bias == 'BULLISH'):
         return 'BUY'
-    elif price_zone_change('ema13', 'below') and (current_trend_bias == 'BEARISH'):
+
+    elif price_zone_change(symbol, 'ema13', 'BELOW', latest_candles) \
+    and (current_trend_bias == 'BEARISH'):
         return 'SELL'
-    elif price_zone_change('ema44', 'below') and (current_trend_bias == 'BEARISH'):
+    elif price_zone_change(symbol, 'ema44', 'BELOW', latest_candles) \
+    and (current_trend_bias == 'BEARISH'):
         return 'SELL'
+
     else:
         return 'WAIT'
 
@@ -536,8 +567,8 @@ try:
 
             # 6) calculate EMAs for use in trend classification
             tick = mt5.symbol_info_tick(default_trade_symbol)
-            # smallest unit is 1-min candle, 60 secs suffice
-            current_emas_bucket = int(tick.time) // 60
+            current_emas_bucket = int(tick.time) // \
+                trend_bias_timeframes[selected_trade_timeframe][2]
             if current_emas_bucket != last_emas_checked_bucket:
                 ema_data = ema_engine.update(tick.bid)
                 last_emas_checked_bucket = current_emas_bucket
@@ -547,7 +578,7 @@ try:
             if display_trend_bias:
                 current_trend_bias = get_current_trend(default_trade_symbol)
                 trend_bias_text = '\nBias:    ' + current_trend_bias
-                # + ' ' + str(ema_data['ema44']) + ' ' + str(ema_data['ema78'])
+                # + ' ' + f'{ema_data['ema44']:.2f}' + ' ' + f'{ema_data['ema78']:.2f}'
             else:
                 trend_bias_text = ''
             if display_max_balance:
@@ -651,7 +682,22 @@ try:
                             print(f'[{threshold[0]}R STOP TRIGGERED]')
                             break
 
-        # 10) handle pre-defined keys to place or close trades
+        # 10) handle trade entry detection and followup actions
+        if enable_auto_trade_entry_testing:
+            tick = mt5.symbol_info_tick(default_trade_symbol)
+            current_entry_bucket = int(tick.time) // \
+                trend_bias_timeframes[selected_trade_timeframe][2]
+            if current_entry_bucket != last_entry_checked_bucket:
+                last_entry_checked_bucket = current_entry_bucket
+                positions = mt5.positions_get(default_trade_symbol)
+                if positions is None or len(positions) == 0:
+                    trade_entry_signal = ema_rejection_setup(default_trade_symbol)
+                    with open('entry_signals.txt', mode='a', newline='') as f:
+                        writer = csv.writer(f)
+                        writer.writerow([(datetime.now(timezone.utc) + \
+                            timedelta(hours=2)).strftime('%Y-%m-%d %H:%M:%S'),trade_entry_signal])
+
+        # 11) handle pre-defined keys to place or close trades
         # will wait up to polling_period_in_sec delay but
         # immediately execute on keypress detected 
         if enable_keys_to_trade:
@@ -809,7 +855,7 @@ except KeyboardInterrupt:
     pass
 
 finally:
-    # 11) terminate engine process by sending shutdown to MT5
+    # 12) terminate engine process by sending shutdown to MT5
     # clear screen and resize back terminal window if needed
     sys.stdout.write("\033[H\033[2J\033[3J")
     sys.stdout.flush()
