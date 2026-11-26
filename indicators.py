@@ -51,26 +51,8 @@ class FastEMAEngine:
         self.ema78_closed_hist.extend(tail_78)
         self.last_bar_time = int(bars[-1][0])
 
-    def update(self, live_price: float) -> dict:
-        """O(1) update on normal ticks. Full 999-bar reload if connection gap occurred."""
-        latest = mt5.copy_rates_from_pos(self.symbol, self.tf, 0, 2)
-        if latest is not None and len(latest) == 2:
-            if latest[0][0] > latest[-1][0]:
-                latest = latest[::-1]
-
-            newest_time = int(latest[-1][0])
-            time_diff = newest_time - self.last_bar_time
-            if time_diff > self.tf_seconds:
-                # Gap detected (laptop sleep, weekend, or MT5 disconnect) -> full reload
-                self.warmup()
-            elif time_diff == self.tf_seconds:
-                # Normal single candle close -> roll prev_close into closed EMAs
-                prev_close = float(latest[-2][4])
-                self.ema13_closed = (2.0 / 14.0) * prev_close + (1.0 - 2.0 / 14.0) * self.ema13_closed
-                self.ema44_closed = (2.0 / 45.0) * prev_close + (1.0 - 2.0 / 45.0) * self.ema44_closed
-                self.ema78_closed = (2.0 / 79.0) * prev_close + (1.0 - 2.0 / 79.0) * self.ema78_closed
-                self.ema78_closed_hist.append(self.ema78_closed)
-                self.last_bar_time = newest_time
+    def fast_live_only(self, live_price: float) -> dict:
+        """Pure in-memory math (< 0.002 ms). Zero MT5 bridge calls."""
 
         # Live forming-candle EMAs (3 multiplications)
         ema13 = (2.0 / 14.0) * live_price + (1.0 - 2.0 / 14.0) * self.ema13_closed
@@ -91,27 +73,8 @@ class FastEMAEngine:
             "slope78": slope78,
         }
 
-    def fast_live_only(self, live_price: float) -> dict:
-        """Pure in-memory math (< 0.002 ms). Zero MT5 bridge calls."""
-        ema13 = (2.0 / 14.0) * live_price + (1.0 - 2.0 / 14.0) * self.ema13_closed
-        ema44 = (2.0 / 45.0) * live_price + (1.0 - 2.0 / 45.0) * self.ema44_closed
-        ema78 = (2.0 / 79.0) * live_price + (1.0 - 2.0 / 79.0) * self.ema78_closed
-
-        slope78 = (
-            (self.ema78_closed_hist[-1] - self.ema78_closed_hist[0]) / 3.0
-            if len(self.ema78_closed_hist) == 4
-            else 0.0
-        )
-
-        return {
-            "ema13": ema13,
-            "ema44": ema44,
-            "ema78": ema78,
-            "slope78": slope78,
-        }
-
     def update(self, live_price: float) -> dict:
-        """Checks MT5 for a newly closed 5m candle (or gap), then returns live EMAs."""
+        """O(1) update on normal ticks. Full 999-bar reload if connection gap occurred."""
         latest = mt5.copy_rates_from_pos(self.symbol, self.tf, 0, 2)
         if latest is not None and len(latest) == 2:
             if latest[0][0] > latest[-1][0]:
