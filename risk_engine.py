@@ -299,17 +299,17 @@ def open_new_trade(symbol, direction, lot_size, comment='', sl_pips=None, tp_pip
 def get_current_trend(symbol):
     tick = mt5.symbol_info_tick(symbol)
     if tick.bid > ema_data['ema44'] > ema_data['ema78']:
-        symbol_trend_bias = 'bullish'
+        symbol_trend_bias = 'BULLISH'
     elif tick.bid < ema_data['ema78'] < ema_data['ema44']:
-        symbol_trend_bias = 'bearish'
+        symbol_trend_bias = 'BEARISH'
     elif tick.bid < ema_data['ema44'] < ema_data['ema78']:
-        symbol_trend_bias = 'bearish'
+        symbol_trend_bias = 'BEARISH'
     elif tick.bid > ema_data['ema78'] > ema_data['ema44']:
-        symbol_trend_bias = 'bullish'
+        symbol_trend_bias = 'BULLISH'
     elif ema_data['ema78'] < tick.bid < ema_data['ema44']:
-        symbol_trend_bias = 'choppy'
+        symbol_trend_bias = 'CHOPPY'
     elif ema_data['ema78'] > tick.bid > ema_data['ema44']:
-        symbol_trend_bias = 'choppy'
+        symbol_trend_bias = 'CHOPPY'
     else:
         symbol_trend_bias = 'unknown'
     return symbol_trend_bias
@@ -655,8 +655,8 @@ try:
                             trade_direction = 'SELL'
                         else:
                             trade_direction = 'BUY'
-                        if (trade_direction == 'BUY' and current_trend_bias == 'bullish') or \
-                            (trade_direction == 'SELL' and current_trend_bias == 'bearish'):
+                        if (trade_direction == 'BUY' and current_trend_bias == 'BULLISH') or \
+                            (trade_direction == 'SELL' and current_trend_bias == 'BEARISH'):
                             flatten_all_positions(default_trade_symbol)
                             # reset or new position can close right away
                             trade_peak_profit[selected_trade_symbol] = 0
@@ -717,7 +717,7 @@ try:
                     elif block_countertrend_trades:
                         tick = mt5.symbol_info_tick(default_trade_symbol)
                         ema_data = ema_engine.fast_live_only(tick.bid)
-                        if get_current_trend(default_trade_symbol) == 'bullish':
+                        if get_current_trend(default_trade_symbol) == 'BULLISH':
                             open_new_trade(default_trade_symbol, 'BUY', lot_size, \
                                 sl_pips=default_stop_loss_pips * cut_loss_multiplier)
                             print('[BUY ORDER SENT]')
@@ -734,7 +734,7 @@ try:
                     elif block_countertrend_trades:
                         tick = mt5.symbol_info_tick(default_trade_symbol)
                         ema_data = ema_engine.fast_live_only(tick.bid)
-                        if get_current_trend(default_trade_symbol) == 'bearish':
+                        if get_current_trend(default_trade_symbol) == 'BEARISH':
                             open_new_trade(default_trade_symbol, 'SELL', lot_size, \
                                 sl_pips=default_stop_loss_pips * cut_loss_multiplier)
                             print('[SELL ORDER SENT]')
