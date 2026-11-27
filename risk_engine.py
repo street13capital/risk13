@@ -239,7 +239,7 @@ risk_data_file = 'risk_engine.txt'
 
 # log intraday equity for viewing
 log_intraday_equity = True
-display_equity_curve = False
+display_equity_curve = True
 
 # obviously need to log to display
 if display_equity_curve:
