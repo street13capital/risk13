@@ -39,6 +39,11 @@ resize_terminal_window = True
 enable_auto_trade_entry_testing = True
 enable_auto_trade_place_trades = False
 
+# set some min acct amount for auto trade
+# in case infinte loop denial of service
+# by sending failed orders repeatedly
+account_minimum_balance = 5
+
 # obviously need below override to run code block
 # and distributed daily risk to avoid deep drawdown
 if enable_auto_trade_place_trades:
@@ -737,7 +742,13 @@ try:
                                 current_risk_floor = weekly_risk_floor
                             else:
                                 current_risk_floor = daily_risk_floor
-                            if (account.equity + capital_park_in_bank) > current_risk_floor:
+                            # basic check on account balance if 2x of stop loss inc margin
+                            # don't factor cut_loss_multiplier to get more conservative value
+                            # use min amount fallback in account to prevent denial of service
+                            # also use equity value to factor in other symbols losing positions
+                            if ((account.equity + capital_park_in_bank) > current_risk_floor) and \
+                            (account.equity > (2 * trade_risk_percentage * daily_peak_balance)) \
+                            and (account.equity > account_minimum_balance):
                                 lot_size = next_trade_size
                                 open_new_trade(default_trade_symbol, trade_entry_signal, \
                                     lot_size, sl_pips=default_stop_loss_pips * cut_loss_multiplier)
