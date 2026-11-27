@@ -35,8 +35,17 @@ total_trading_sessions = 6
 # reduce terminal size to fit output
 resize_terminal_window = True
 
-# enable entry detection and order
+# enable entry detection and execution
 enable_auto_trade_entry_testing = True
+enable_auto_trade_place_trades = False
+
+# obviously need below override to run code block
+# and distributed daily risk to avoid deep drawdown
+if enable_auto_trade_place_trades:
+    enable_auto_trade_entry_testing = True
+    distributed_daily_risk = True
+# parameter to check at each timeframe
+# eg 1-min, not every sub-second loop
 last_entry_checked_bucket = -1
 
 # enable keys to long, short, close trades
@@ -360,7 +369,7 @@ def ema_rejection_setup(symbol):
     # - leaving sky zone
     # - leaving land zone
     # - entering sea zone
-    # - sea gradient ok
+    # - direction of sea
 
     tick = mt5.symbol_info_tick(symbol)
     ema_data = ema_engine.fast_live_only(tick.bid)
@@ -721,6 +730,18 @@ try:
                 if positions is None or len(positions) == 0:
                     trade_entry_signal = ema_rejection_setup(default_trade_symbol)
                     if trade_entry_signal != 'WAIT':
+                        if enable_auto_trade_place_trades:
+                            # sanity check on distributed daily risk limit
+                            # or weekly risk limit whichever is higher
+                            if weekly_risk_floor > daily_risk_floor:
+                                current_risk_floor = weekly_risk_floor
+                            else:
+                                current_risk_floor = daily_risk_floor
+                            if (account.equity + capital_park_in_bank) > current_risk_floor:
+                                lot_size = next_trade_size
+                                open_new_trade(default_trade_symbol, trade_entry_signal, \
+                                    lot_size, sl_pips=default_stop_loss_pips * cut_loss_multiplier)
+                                print('[' + trade_entry_signal + ' ORDER SENT]')
                         with open('entry_signals.txt', mode='a', newline='') as f:
                             writer = csv.writer(f)
                             writer.writerow([(datetime.now(timezone.utc) + \
