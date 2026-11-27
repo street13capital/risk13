@@ -27,10 +27,10 @@ micro_trading_enabled = False
 # time-based daily risk allocation
 # trading window in UTC 24h format
 # split risk to different sessions
-distributed_daily_risk = False
+distributed_daily_risk = True
 trading_start_utc_time = '0000'
-trading_end_utc_time = '1600'
-total_trading_sessions = 3
+trading_end_utc_time = '2359'
+total_trading_sessions = 6
 
 # reduce terminal size to fit output
 resize_terminal_window = True
@@ -87,9 +87,9 @@ display_trade_size = False
 # show maximum balance for today
 # show current account balance
 # show current account equity
-display_max_balance = False
-display_balance = False
-display_equity = False
+display_max_balance = True
+display_balance = True
+display_equity = True
 
 # show current symbol trend bias
 # based on EMAs on 5-min chart
@@ -99,18 +99,34 @@ trend_bias_timeframes = [('1-min', mt5.TIMEFRAME_M1, 60),
                          ('30-min', mt5.TIMEFRAME_M30, 1800)]
 
 # set selected timeframe from above list
-# 0 is the first one, 1 is the second one etc
+# 0 is the first one, 1 is the second one etc.
+# stop loss points generally defined for 30-min
+# which will be halved for 5-min timeframe,
+# and one-quartered for 1-min timeframe.
+# at the moment not providing option to
+# switch timeframe while running to avoid
+# changing trading plan because of market.
 selected_trade_timeframe = 0
+
+# multiplier to adjust stops and trade risk
+if selected_trade_timeframe == 0:
+    timeframe_multiplier = 0.25
+elif selected_trade_timeframe == 1:
+    timeframe_multiplier = 0.50
+elif selected_trade_timeframe == 2:
+    timeframe_multiplier = 1.00
+trade_risk_percentage *= timeframe_multiplier
 
 # define symbols with their parameters
 # - lot size ratio relative to capital
 # - point for stop loss at trade risk
-# for eg below is 45, 250, 125 points
-# pip for forex pairs, points for others
-watchlist_symbols = [('EURUSD', 0.000222, 4.5),
-                     ('BTCUSD', 0.000040, 250),
-                     ('USTEC',  0.000080, 125),
-                     ('XAUUSD', 0.0000125, 8.0)]
+# - points are adjusted for timeframe
+# - for eg below is 45, 250, 125 points
+# - pip for forex pairs, points for others
+watchlist_symbols = [('EURUSD', 0.000222, 4.5 * timeframe_multiplier),
+                     ('BTCUSD', 0.000040, 250 * timeframe_multiplier),
+                     ('USTEC',  0.000080, 125 * timeframe_multiplier),
+                     ('XAUUSD', 0.0000125, 8.0 * timeframe_multiplier)]
 
 # set selected symbol from above watchlist
 # 0 is the first one, 1 is second one etc
