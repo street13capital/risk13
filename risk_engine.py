@@ -42,7 +42,7 @@ enable_auto_trade_place_trades = False
 # set some min acct amount for auto trade
 # in case infinte loop denial of service
 # by sending failed orders repeatedly
-account_minimum_balance = 5
+account_autotrade_minimum_balance = 5
 
 # obviously need below override to run code block
 # and distributed daily risk to avoid deep drawdown
@@ -748,7 +748,7 @@ try:
                             # also use equity value to factor in other symbols losing positions
                             if ((account.equity + capital_park_in_bank) > current_risk_floor) and \
                             (account.equity > (2 * trade_risk_percentage * daily_peak_balance)) \
-                            and (account.equity > account_minimum_balance):
+                            and (account.equity > account_autotrade_minimum_balance):
                                 lot_size = next_trade_size
                                 open_new_trade(default_trade_symbol, trade_entry_signal, \
                                     lot_size, sl_pips=default_stop_loss_pips * cut_loss_multiplier)
