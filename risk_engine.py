@@ -105,7 +105,7 @@ elif light_trading_enabled:
     weekly_risk_percentage /= 2
 
 # show trade size factoring risk limit
-display_trade_size = False
+display_trade_size = True
 
 # show maximum balance for today
 # show current account balance
