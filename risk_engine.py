@@ -43,6 +43,7 @@ resize_terminal_window = True
 # enable entry detection and execution
 enable_auto_trade_entry_testing = True
 enable_auto_trade_place_trades = True
+auto_trade_reverse_signals = True
 
 # set some min acct amount for auto trade
 # in case infinte loop denial of service
@@ -746,6 +747,14 @@ try:
                 if positions is None or len(positions) == 0:
                     trade_entry_signal = ema_rejection_setup(default_trade_symbol)
                     if trade_entry_signal != 'WAIT':
+                        # handle trading reverse of signal
+                        if auto_trade_reverse_signals:
+                            if trade_entry_signal == 'BUY':
+                                signal_to_execute = 'SELL'
+                            elif trade_entry_signal == 'SELL':
+                                signal_to_execute = 'BUY'
+                        else:
+                            signal_to_execute = trade_entry_signal
                         # avoid placing trades where exchanges and symbols are closed
                         # in this case, avoid 2000 to 0000 UTC reasonable window
                         # even if accounting for daylight savings changes
@@ -765,13 +774,14 @@ try:
                             (account.equity > (2 * trade_risk_percentage * daily_peak_balance)) \
                             and (account.equity > account_autotrade_minimum_balance):
                                 lot_size = next_trade_size
-                                open_new_trade(default_trade_symbol, trade_entry_signal, \
+                                open_new_trade(default_trade_symbol, signal_to_execute, \
                                     lot_size, sl_pips=default_stop_loss_pips * cut_loss_multiplier)
-                                print('[' + trade_entry_signal + ' ORDER SENT]')
+                                print('[' + signal_to_execute + ' ORDER SENT]')
                         with open('entry_signals.txt', mode='a', newline='') as f:
                             writer = csv.writer(f)
                             writer.writerow([(datetime.now(timezone.utc) + \
-                            timedelta(hours=2)).strftime('%Y-%m-%d %H:%M:%S'),trade_entry_signal])
+                            timedelta(hours=2)).strftime('%Y-%m-%d %H:%M:%S'),
+                            trade_entry_signal,signal_to_execute])
 
         # 11) handle pre-defined keys to place or close trades
         # will wait up to polling_period_in_sec delay but
