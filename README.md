@@ -14,7 +14,7 @@ This repo is an intraday risk engine to assist with risk management for my discr
 |disable adding|default setting to limit risk by not allowing adding to position|
 |tighter cut loss|optional setting to cut at 38.2% of trade risk instead of full risk|
 |next trade size|show next trade size accounting for remaining daily risk limit|
-|swing budget|show risk budget in swing trading, factoring stop losses|
+|swing budget|show risk budget in swing trading mode, factoring stop losses|
 
 
 |Trade Management|Description|
@@ -23,7 +23,7 @@ This repo is an intraday risk engine to assist with risk management for my discr
 |profit target stops|lock profits if reverse below +0.618R, +0.786R, +1.0R, +1.25R|
 |protective stops|tighten stop at +1.5R, tighten even more at +4.0R and +6.5R|
 |multiple positions|stops and risk limits work for multiple concurrent symbols|
-|experimental entry|experimental auto trade entry under logging and testing|
+|experimental entry|**enabled** experimental automated trade entry under testing|
 
 |Order Management|Description|
 |:---------------|:----------|
@@ -41,7 +41,7 @@ This repo is an intraday risk engine to assist with risk management for my discr
 |:-------------|:----------|
 |outside capital|allow risk calculations where not all capital is in MT5 account|
 |equity curve|log intraday equity for live viewing of trading or EOD review|
-|hide balance|option to hide max balance, balance and equity now for focus|
+|hide balance|option to hide max balance, balance and equity for focus|
 |swing trading|swing trading mode where only weekly risk limit is imposed|
 |micro trading|option to trade at 1/10 size for testing and development|
 |light trading|option to trade at 1/2 size for testing and development|
