@@ -587,9 +587,9 @@ try:
             else:
                 next_trade_size = float(Decimal(str(next_trade_size)).quantize(Decimal('0.1')))
             if display_trade_size:
-                trade_size_text = '\nSize:    ' + f'{Decimal(f'{next_trade_size:.2g}'):f}' + '\n'
+                trade_size_text = '\nSize:    ' + f'{Decimal(f'{next_trade_size:.2g}'):f}'
             else:
-                trade_size_text = '\n'
+                trade_size_text = ''
 
             if not swing_trading_mode:
                 trade_symbol_text = default_trade_symbol
@@ -617,7 +617,7 @@ try:
                             total_stop_losses += position_stop_loss
                 risk_budget_left = account.balance + capital_park_in_bank \
                                    - total_stop_losses - weekly_risk_floor
-                trade_size_text = '\nBudget:  ' + f'{risk_budget_left:.2f}' + '\n'
+                trade_size_text = '\nBudget:  ' + f'{risk_budget_left:.2f}'
 
             # 6) calculate EMAs for use in trend classification
             tick = mt5.symbol_info_tick(default_trade_symbol)
@@ -631,10 +631,10 @@ try:
 
             if display_trend_bias:
                 current_trend_bias = get_current_trend(default_trade_symbol)
-                trend_bias_text = '\nBias:    ' + current_trend_bias
-                # + ' ' + f'{ema_data['ema44']:.2f}' + ' ' + f'{ema_data['ema78']:.2f}'
+                trend_bias_text = '\nBias:    ' + current_trend_bias + '\n'
+                # + ' ' + f'{ema_data['ema44']:.2f}' + ' ' + f'{ema_data['ema78']:.2f}' + '\n'
             else:
-                trend_bias_text = ''
+                trend_bias_text = '\n'
             if display_max_balance:
                 max_balance_text = '\nMaximum: ' + f'{daily_peak_balance:.2f}'
             else:
@@ -652,7 +652,7 @@ try:
             # use special code to clear screen not slower OS I/O
             print('\033[H\033[J[Risk 13 x ' + trade_symbol_text + ']', \
                 max_balance_text, balance_text, equity_text, pnl_text, \
-                trend_bias_text, trade_size_text, force_refresh_msg)
+                trade_size_text, trend_bias_text, force_refresh_msg)
             force_refresh_msg = ''
 
             if log_intraday_equity:
