@@ -44,6 +44,7 @@ resize_terminal_window = True
 enable_auto_trade_entry_testing = True
 enable_auto_trade_place_trades = True
 auto_trade_reverse_signals = True
+auto_trade_heuristics_switch = False
 
 # set some min acct amount for auto trade
 # in case infinte loop denial of service
@@ -158,6 +159,11 @@ selected_trade_symbol = 1
 
 # define list to track peak profits for symbols
 trade_peak_profit = [0] * len(watchlist_symbols)
+
+# define lists to track trades P&L for symbols
+# for heuristics purpose of automated entries
+account_balance_history = [[]] * len(watchlist_symbols)
+trade_position_open = [False] * len(watchlist_symbols) 
 
 # load selected trade symbol parameters
 default_trade_symbol = watchlist_symbols[selected_trade_symbol][0]
@@ -745,9 +751,23 @@ try:
                 last_entry_checked_bucket = current_entry_bucket
                 positions = mt5.positions_get(default_trade_symbol)
                 if positions is None or len(positions) == 0:
+                    # if no position when state has position means position closed
+                    # thus collect P&L data for auto-trading heuristics input
+                    # mt5-mac package has history function but don't work
+                    if trade_position_open[selected_trade_symbol]:
+                        account = mt5.account_info() # position might cut from call above
+                        trade_position_open[selected_trade_symbol] = False
+                        account_balance_history[selected_trade_symbol].append(account.balance)
+
+                    # now run signal check, sanity checks, execution and logging
                     trade_entry_signal = ema_rejection_setup(default_trade_symbol)
                     if trade_entry_signal != 'WAIT':
-                        # handle trading reverse of signal
+                        # heuristics-based switching by checking if algo mismatches market state
+                        if auto_trade_heuristics_switch:
+                            # build heuristics logic here
+                            if True:
+                                auto_trade_reverse_signals = not auto_trade_reverse_signals
+                        # handle trading reverse of signal because algo mismatches market state
                         if auto_trade_reverse_signals:
                             if trade_entry_signal == 'BUY':
                                 signal_to_execute = 'SELL'
@@ -777,6 +797,7 @@ try:
                                 open_new_trade(default_trade_symbol, signal_to_execute, \
                                     lot_size, sl_pips=default_stop_loss_pips * cut_loss_multiplier)
                                 print('[' + signal_to_execute + ' ORDER SENT]')
+                                trade_position_open[selected_trade_symbol] = True
                         with open('entry_signals.txt', mode='a', newline='') as f:
                             writer = csv.writer(f)
                             writer.writerow([(datetime.now(timezone.utc) + \
