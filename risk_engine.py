@@ -24,6 +24,10 @@ import atexit
 # for testing and development of engine
 micro_trading_enabled = False
 
+# light trading option to trade 1/2 size
+# for testing and developing of engine
+light_trading_enabled = True
+
 # time-based daily risk allocation
 # trading window in UTC 24h format
 # split risk to different sessions
@@ -37,7 +41,7 @@ resize_terminal_window = True
 
 # enable entry detection and execution
 enable_auto_trade_entry_testing = True
-enable_auto_trade_place_trades = False
+enable_auto_trade_place_trades = True
 
 # set some min acct amount for auto trade
 # in case infinte loop denial of service
@@ -94,6 +98,10 @@ if micro_trading_enabled:
     trade_risk_percentage /= 10
     daily_risk_percentage /= 10
     weekly_risk_percentage /= 10
+elif light_trading_enabled:
+    trade_risk_percentage /= 2
+    daily_risk_percentage /= 2
+    weekly_risk_percentage /= 2
 
 # show trade size factoring risk limit
 display_trade_size = False
@@ -155,6 +163,8 @@ trade_size_constant = watchlist_symbols[selected_trade_symbol][1]
 default_stop_loss_pips = watchlist_symbols[selected_trade_symbol][2]
 if micro_trading_enabled:
     trade_size_constant /= 10
+elif light_trading_enabled:
+    trade_size_constant /= 2
 
 # define major forex pairs for stop loss calculation
 FOREX_PAIRS = ['EURUSD', 'USDJPY', 'GBPUSD', 'USDCHF', 'AUDUSD', 'USDCAD', 'NZDUSD']  
@@ -882,6 +892,8 @@ try:
                         default_stop_loss_pips = watchlist_symbols[selected_trade_symbol][2]
                         if micro_trading_enabled:
                             trade_size_constant /= 10
+                        elif light_trading_enabled:
+                            trade_size_constant /= 2
                         # only need force refresh at this branch because trade size calculation
                         # is done in the subloop and needs to recalculate base on new symbol
                         force_refresh_msg = '\n[' + default_trade_symbol + ' SELECTED]'
