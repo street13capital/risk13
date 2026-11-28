@@ -26,6 +26,7 @@ micro_trading_enabled = False
 
 # light trading option to trade 1/2 size
 # for testing and developing of engine
+# micro trading will override this
 light_trading_enabled = True
 
 # time-based daily risk allocation
@@ -33,8 +34,8 @@ light_trading_enabled = True
 # split risk to different sessions
 distributed_daily_risk = True
 trading_start_utc_time = '0000'
-trading_end_utc_time = '2359'
-total_trading_sessions = 6
+trading_end_utc_time = '2000'
+total_trading_sessions = 5
 
 # reduce terminal size to fit output
 resize_terminal_window = True
