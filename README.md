@@ -23,7 +23,7 @@ This repo is an intraday risk engine to assist with risk management for my discr
 |profit target stops|lock profits if reverse below +0.618R, +0.786R, +1.0R, +1.25R|
 |protective stops|tighten stop at +1.5R, tighten even more at +4.0R and +6.5R|
 |multiple positions|stops and risk limits work for multiple concurrent symbols|
-|experimental entry|**enabled** experimental automated trade entry under testing|
+|experimental entry|**ENABLED** experimental automated trade entry under testing|
 
 |Order Management|Description|
 |:---------------|:----------|
