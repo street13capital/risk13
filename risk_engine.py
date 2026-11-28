@@ -745,7 +745,11 @@ try:
                 if positions is None or len(positions) == 0:
                     trade_entry_signal = ema_rejection_setup(default_trade_symbol)
                     if trade_entry_signal != 'WAIT':
-                        if enable_auto_trade_place_trades:
+                        # avoid placing trades where exchanges and symbols are closed
+                        # in this case, avoid 2000 to 0000 UTC reasonable window
+                        # even if accounting for daylight savings changes
+                        if enable_auto_trade_place_trades and \
+                        datetime.now(timezone.utc).hour < 20:
                             # sanity check on distributed daily risk limit
                             # or weekly risk limit whichever is higher
                             if weekly_risk_floor > daily_risk_floor:
