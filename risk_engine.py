@@ -767,7 +767,7 @@ try:
                             # heuristics logic to decide whether to flip trading strategy
                             temp_balance_list = []
                             consecutive_losses = 0
-                            for n in range(auto_trade_heuristics_lookback + 1):
+                            for n in range(auto_trade_heuristics_lookback):
                                 if len(account_balance_history[selected_trade_symbol]) > (n + 1):
                                     if (account_balance_history[selected_trade_symbol][-1-n] - \
                                     account_balance_history[selected_trade_symbol][-2-n]) < 0:
