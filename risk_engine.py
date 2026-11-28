@@ -41,10 +41,13 @@ total_trading_sessions = 5
 resize_terminal_window = True
 
 # enable entry detection and execution
+# including heuristics to flip strategy
+# when there are consecutive loss(es)
 enable_auto_trade_entry_testing = True
 enable_auto_trade_place_trades = True
 auto_trade_reverse_signals = True
-auto_trade_heuristics_switch = False
+auto_trade_heuristics_switch = True
+auto_trade_heuristics_lookback = 1
 
 # set some min acct amount for auto trade
 # in case infinte loop denial of service
@@ -755,18 +758,46 @@ try:
                     # thus collect P&L data for auto-trading heuristics input
                     # mt5-mac package has history function but don't work
                     if trade_position_open[selected_trade_symbol]:
-                        account = mt5.account_info() # position might cut from call above
+                        account = mt5.account_info() # positions might cut from earlier call
                         trade_position_open[selected_trade_symbol] = False
                         account_balance_history[selected_trade_symbol].append(account.balance)
+
+                        # heuristics-based switching by checking if algo mismatches market state
+                        if auto_trade_heuristics_switch:
+                            # heuristics logic to decide whether to flip trading strategy
+                            temp_balance_list = []
+                            consecutive_losses = 0
+                            for n in range(auto_trade_heuristics_lookback + 1):
+                                if len(account_balance_history[selected_trade_symbol]) > (n + 1):
+                                    if (account_balance_history[selected_trade_symbol][-1-n] - \
+                                    account_balance_history[selected_trade_symbol][-2-n]) < 0:
+                                        consecutive_losses += 1
+                            if consecutive_losses == auto_trade_heuristics_lookback:
+                                # reverse trade strategy and reset account balance history
+                                auto_trade_reverse_signals = not auto_trade_reverse_signals
+                                account_balance_history[selected_trade_symbol] = []
+
+                        # remove the impact of position closure for symbol on other symbols
+                        closed_trade_pnl = account_balance_history[selected_trade_symbol][-1] \
+                            - account_balance_history[selected_trade_symbol][-2]
+                        for symbol in range(len(watchlist_symbols)):
+                            if symbol == selected_trade_symbol:
+                                pass # skip current selected symbol
+                            else:
+                                temp_balance_list = []
+                                for n in range(auto_trade_heuristics_lookback + 1):
+                                    if account_balance_history[symbol]:
+                                        temp_balance_list.append(\
+                                            account_balance_history[symbol].pop() \
+                                                + closed_trade_pnl)
+                                for n in range(auto_trade_heuristics_lookback + 1):
+                                    if temp_balance_list:
+                                        account_balance_history[symbol].append(\
+                                            temp_balance_list.pop())
 
                     # now run signal check, sanity checks, execution and logging
                     trade_entry_signal = ema_rejection_setup(default_trade_symbol)
                     if trade_entry_signal != 'WAIT':
-                        # heuristics-based switching by checking if algo mismatches market state
-                        if auto_trade_heuristics_switch:
-                            # build heuristics logic here
-                            if True:
-                                auto_trade_reverse_signals = not auto_trade_reverse_signals
                         # handle trading reverse of signal because algo mismatches market state
                         if auto_trade_reverse_signals:
                             if trade_entry_signal == 'BUY':
@@ -790,6 +821,7 @@ try:
                             # don't factor cut_loss_multiplier to get more conservative value
                             # use min amount fallback in account to prevent denial of service
                             # also use equity value to factor in other symbols losing positions
+                            account = mt5.account_info() # positions might cut from earlier call
                             if ((account.equity + capital_park_in_bank) > current_risk_floor) and \
                             (account.equity > (2 * trade_risk_percentage * daily_peak_balance)) \
                             and (account.equity > account_autotrade_minimum_balance):
@@ -797,6 +829,10 @@ try:
                                 open_new_trade(default_trade_symbol, signal_to_execute, \
                                     lot_size, sl_pips=default_stop_loss_pips * cut_loss_multiplier)
                                 print('[' + signal_to_execute + ' ORDER SENT]')
+                                # make initial baseline reference for account balance
+                                if len(account_balance_history[selected_trade_symbol]) == 0:
+                                    account_balance_history[selected_trade_symbol].\
+                                        append(account.balance)
                                 trade_position_open[selected_trade_symbol] = True
                         with open('entry_signals.txt', mode='a', newline='') as f:
                             writer = csv.writer(f)
