@@ -44,6 +44,7 @@ This repo is an intraday risk engine to assist with risk management for my discr
 |hide balance|option to hide max balance, balance and equity now for focus|
 |swing trading|swing trading mode where only weekly risk limit is imposed|
 |micro trading|option to trade at 1/10 size for testing and development|
+|light trading|option to trade at 1/2 size for testing and development|
 |anti-sleep|prevent laptop sleeping while running, display will go off|
 
 ### Sample output of risk engine
